@@ -16,6 +16,7 @@ __pycache__/
 celerybeat-schedule
 Ansiblefile.lock
 pip-log.txt
+npm-debug.log
 pip-delete-this-directory.txt
 node_modules/
 jspm/github/
