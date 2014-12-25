@@ -13,6 +13,7 @@ __pycache__/
 .tmp/
 .idea/
 .vagrant/
+celerybeat-schedule
 Ansiblefile.lock
 pip-log.txt
 pip-delete-this-directory.txt
