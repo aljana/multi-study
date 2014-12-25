@@ -1,0 +1,19 @@
+- fields:
+    avatar: ''
+    avatar_height: null
+    avatar_width: null
+    birthday: null
+    date_joined: 2014-12-18 19:09:31.842343+00:00
+    email: info@multi-study.com
+    first_name: null
+    gender: M
+    groups: []
+    is_active: true
+    is_staff: true
+    is_superuser: true
+    last_login: 2014-12-18 19:09:39.330964+00:00
+    last_name: null
+    password: pbkdf2_sha256$12000$n6TJ4b15lVtB$J5DHeZpXzWWtTm0ZKBBNUQZw/L24aSicWzAbhzPG/oE=
+    user_permissions: []
+    username: info@multi-study.com
+  model: users.user

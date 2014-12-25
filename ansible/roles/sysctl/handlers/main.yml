@@ -1,0 +1,4 @@
+---
+
+- name: reload sysctl
+  service: name=procps state=reloaded

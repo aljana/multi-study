@@ -1,0 +1,30 @@
+*.py[cod]
+*.manifest
+*.spec
+*.so
+*.mo
+*.pot
+*.log
+*.local.yml
+*.local.yaml
+*.local.json
+
+__pycache__/
+.tmp/
+.idea/
+.vagrant/
+Ansiblefile.lock
+pip-log.txt
+pip-delete-this-directory.txt
+node_modules/
+jspm/github/
+jspm/npm/
+
+# Root
+/ansible/librarian/
+/public/media/
+/public/static/*
+!/public/static/www/
+
+# Frontend
+/workspace/www/bower/

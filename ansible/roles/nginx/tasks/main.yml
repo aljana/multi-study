@@ -1,0 +1,39 @@
+---
+
+- name: install nginx
+  sudo: yes
+  apt: pkg=nginx state=present
+
+- name: copy nginx configuration
+  copy: src=nginx.conf dest=/etc/nginx/nginx.conf
+  sudo: yes
+  notify: restart nginx
+
+- name: ensure nginx does not have a default configuration
+  file: path=/etc/nginx/sites-enabled/default state=absent
+  sudo: yes
+  notify: restart nginx
+
+- name: copy nginx apps
+  template: src="{{ item | basename }}" dest="/etc/nginx/sites-available/{{ workspace }}-{{ item | basename | replace('.j2', '') }}"
+  sudo: yes
+  with_fileglob:
+    - "{{ root_dir }}/ansible/roles/nginx/templates/*"
+  notify:
+    - restart nginx
+
+- name: enable nginx apps
+  file: src="/etc/nginx/sites-available/{{ workspace }}-{{ item | basename | replace('.j2', '') }}" dest="/etc/nginx/sites-enabled/{{ workspace }}-{{ item | basename | replace('.j2', '') }}" state=link
+  sudo: yes
+  with_fileglob:
+    - "{{ root_dir }}/ansible/roles/nginx/templates/*"
+  notify:
+    - restart nginx
+
+- name: update /etc/hosts file
+  sudo: yes
+  lineinfile: dest=/etc/hosts line="127.0.0.1 {{ item.value.domain }}"
+  with_dict: hosts
+  when: item.value.domain is defined
+  notify:
+    - restart nginx

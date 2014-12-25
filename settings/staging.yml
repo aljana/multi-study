@@ -1,0 +1,42 @@
+environment: staging
+
+hosts:
+  public:
+    domain: public.multi-study.local
+    url: http://public.multi-study.local
+
+  dev:
+    domain: dev.multi-study.local
+    url: http://dev.multi-study.local
+
+  api:
+    domain: api.multi-study.local
+    url: http://api.multi-study.local
+
+  auth:
+    domain: auth.multi-study.local
+    url: http://auth.multi-study.local
+
+  cms:
+    domain: cms.multi-study.local
+    url: http://cms.multi-study.local
+
+  www:
+    domain: www.multi-study.local
+    url: http://www.multi-study.local
+    npm: yes
+    bower: yes
+    gulp: build-staging
+
+#  ws:
+#    domain: ws.multi-study.local
+#    url: http://ws.multi-study.local
+#    npm: yes
+#    gulp: build
+
+  prerender:
+    host: localhost:3000
+    url: http://localhost:3000
+    dir: workspace/prerender
+    git: https://github.com/prerender/prerender.git
+    npm: yes

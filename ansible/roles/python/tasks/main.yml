@@ -1,0 +1,59 @@
+---
+
+- name: install python2 specific packages
+  sudo: yes
+  apt: pkg={{ item }} state=present
+  with_items:
+    - python
+    - python-setuptools
+    - python-dev
+    - python-pip
+  when: python_version == 2
+
+- name: install python3 specific packages
+  sudo: yes
+  apt: pkg={{ item }} state=present
+  with_items:
+    - python3
+    - python3-setuptools
+    - python3-dev
+    - python3-pip
+  when: python_version == 3
+
+- name: install virtualenv
+  sudo: yes
+  apt: pkg=python-virtualenv state=present
+
+- name: create virtualenv
+  command: sudo -iu {{ system_user }} {{ root_dir }}/ansible/roles/python/scripts/virtualenv.sh {{ home_dir }}/.virtualenv/{{ virtualenv }} {{ python_executable }}
+
+- name: enable virtualenv in {{ home_dir }}/.profile
+  sudo: yes
+  sudo_user: "{{ system_user }}"
+  lineinfile: dest={{ home_dir }}/.profile line="source {{ home_dir }}/.virtualenv/{{ virtualenv }}/bin/activate"
+
+- name: install pip requirements
+  command: sudo -iu {{ system_user }} {{ root_dir }}/ansible/roles/python/scripts/pip.sh {{ home_dir }}/.virtualenv/{{ virtualenv }}/bin/activate {{ root_dir }}/requirements.txt
+
+#- name: apply django migrations
+#  django_manage: >
+#    command=migrate
+#    app_path={{ ansible.project_dir }}/apps
+#    settings={{ apps.project.module }}.settings.development
+#    virtualenv={{ ansible.home_dir }}/{{ ansible.project_name }}
+#
+#- name: load django fixtures
+#  django_manage: >
+#    command=loaddata
+#    fixtures=initial_data
+#    app_path={{ ansible.project_dir }}/apps
+#    settings={{ apps.project.module }}.settings.development
+#    virtualenv={{ ansible.home_dir }}/{{ ansible.project_name }}
+#
+#- name: collect django static
+#  django_manage: >
+#    command=collectstatic
+#    app_path={{ ansible.project_dir }}/apps
+#    virtualenv={{ ansible.home_dir }}/{{ ansible.project_name }}
+#
+#

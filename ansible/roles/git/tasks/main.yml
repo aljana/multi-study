@@ -1,0 +1,5 @@
+---
+
+- git: repo={{ item.value.git }} dest={{ root_dir }}/{{ item.value.dir }} version={{ item.value.version | default('master') }}
+  with_dict: hosts
+  when: item.value.dir is defined and item.value.git is defined

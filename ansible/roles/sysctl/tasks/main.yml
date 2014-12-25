@@ -1,0 +1,6 @@
+---
+
+- name: update /etc/sysctl.conf
+  copy: src=sysctl.conf dest=/etc/sysctl.conf
+  sudo: yes
+  notify: reload sysctl

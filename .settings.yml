@@ -1,0 +1,62 @@
+---
+system_user: vagrant
+workspace: multi-study
+databases:
+  postgresql:
+    type: postgresql
+    user: postgres
+    password: postgres
+    host: localhost
+    port: 5432
+    name: multi_study
+home_dir: /home/vagrant
+root_dir: /vagrant
+domains:
+- multi-study.com
+virtualenv: multi-study
+python_executable: python3
+python_version: 3
+nvm_version: v0.20.0
+node_version: v0.10.34
+node_packages:
+- bower
+- gulp
+vagrant_box: ubuntu/trusty64
+vagrant_hostname: vagrant.multi-study.local
+vagrant_ip: 10.1.1.3
+vagrant_memory: 4092
+vagrant_cpus: 4
+environment: staging
+hosts:
+  public:
+    domain: public.multi-study.local
+    url: http://public.multi-study.local
+  dev:
+    domain: dev.multi-study.local
+    url: http://dev.multi-study.local
+  api:
+    domain: api.multi-study.local
+    url: http://api.multi-study.local
+    dir: workspace/_projects/_hosts/api
+  auth:
+    domain: auth.multi-study.local
+    url: http://auth.multi-study.local
+    dir: workspace/_projects/_hosts/auth
+  cms:
+    domain: cms.multi-study.local
+    url: http://cms.multi-study.local
+    dir: workspace/_projects/_hosts/cms
+  www:
+    domain: www.multi-study.local
+    url: http://www.multi-study.local
+    dir: workspace/www
+    npm: true
+    bower: true
+    gulp: build-staging
+  prerender:
+    host: localhost:3000
+    url: http://localhost:3000
+    dir: workspace/prerender
+    git: https://github.com/prerender/prerender.git
+    npm: true
+system_host: windows

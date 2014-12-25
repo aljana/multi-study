@@ -1,0 +1,4 @@
+---
+
+- name: restart uwsgi
+  action: service name=uwsgi state=restarted

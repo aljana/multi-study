@@ -1,0 +1,68 @@
+---
+
+- name: check if nvm is installed
+  stat: 'path={{ home_dir }}/.nvm'
+  sudo: yes
+  sudo_user: "{{ system_user }}"
+  register: nvm_check_result
+
+- name: install nvm
+  sudo: yes
+  sudo_user: "{{ system_user }}"
+  git: repo=https://github.com/creationix/nvm.git dest={{ home_dir }}/.nvm/ version={{ nvm_version }}
+  when: nvm_check_result.stat.isdir is not defined
+
+- name: source nvm in {{ home_dir }}/.profile
+  sudo: yes
+  sudo_user: "{{ system_user }}"
+  lineinfile: dest={{ home_dir }}/.profile line="source {{ home_dir }}/.nvm/nvm.sh"
+
+- name: install node {{ node_version }}
+  sudo: yes
+  sudo_user: "{{ system_user }}"
+  command: sudo -iu {{ system_user }} nvm install {{ node_version }}
+  register: nvm_install_result
+  changed_when: "'is already installed.' not in nvm_install_result.stderr"
+
+- name: check if node {{ node_version }} is the default version
+  shell: "sudo -iu {{ system_user }} nvm ls | grep -e 'default -> {{ node_version }}'"
+  register: nvm_default_result
+  changed_when: False
+  ignore_errors: True
+  tags: nvm
+
+- name: set default node version to {{ node_version }}
+  command: sudo -iu {{ system_user }} nvm alias default {{ node_version }}
+  when: nvm_default_result|failed
+
+- name: enable default node version in {{ home_dir }}/.profile
+  sudo: yes
+  sudo_user: "{{ system_user }}"
+  lineinfile: dest={{ home_dir }}/.profile line="nvm use default"
+
+- name: install global packages
+  sudo: yes
+  sudo_user: "{{ system_user }}"
+  npm: name={{ item }} executable={{ home_dir }}/.nvm/{{ node_version }}/bin/npm global=true state=present
+  with_items: node_packages
+
+- name: install app packages for windows host
+  command: sudo -iu {{ system_user }} {{ root_dir }}/ansible/roles/node/scripts/npm.sh 1 {{ home_dir }} {{ root_dir }}/{{ item.value.dir }}
+  with_dict: hosts
+  when: system_host is defined and system_host == "windows" and item.value.dir is defined and item.value.npm is defined
+
+- name: install app packages for unix host
+  command: sudo -iu {{ system_user }} {{ root_dir }}/ansible/roles/node/scripts/npm.sh 0 {{ home_dir }} {{ root_dir }}/{{ item.value.dir }}
+  with_dict: hosts
+  when: (system_host is not defined or system_host != "windows") and item.value.dir is defined and item.value.npm is defined
+
+- name: install bower packages
+  command: sudo -iu {{ system_user }} {{ root_dir }}/ansible/roles/node/scripts/bower.sh {{ home_dir }} {{ root_dir }}/{{ item.value.dir }}
+  sudo_user: system_user
+  with_dict: hosts
+  when: item.value.dir is defined and item.value.bower is defined
+
+- name: build with gulp
+  command: sudo -iu {{ system_user }} {{ root_dir }}/ansible/roles/node/scripts/gulp.sh {{ item.value.gulp }} {{ home_dir }} {{ root_dir }}/{{ item.value.dir }}
+  with_dict: hosts
+  when: item.value.dir is defined and item.value.gulp is defined

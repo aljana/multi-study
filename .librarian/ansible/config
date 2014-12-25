@@ -1,0 +1,3 @@
+---
+LIBRARIAN_ANSIBLE_PATH: ansible/librarian
+LIBRARIAN_ANSIBLE_TMP: .tmp

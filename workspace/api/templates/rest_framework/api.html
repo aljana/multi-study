@@ -1,0 +1,96 @@
+{% extends "rest_framework/base.html" %}
+
+{% block style %}
+  <link rel="stylesheet" href="/static/api/bootstrap.min.css"
+        type="text/css">
+  <link rel="stylesheet" type="text/css"
+        href="/static/rest_framework/css/prettify.css"/>
+  <link rel="stylesheet" type="text/css"
+        href="/static/rest_framework/css/default.css"/>
+  <style type="text/css">
+    ul.breadcrumb {
+      margin: 0;
+    }
+
+    .navbar-brand {
+      padding-left: 0;
+    }
+
+    form select, form input, form textarea {
+      display: block;
+    }
+
+    footer {
+      margin-bottom: 20px;
+    }
+
+    .navbar-text {
+      margin-top: 12px;
+    }
+
+    .form-actions {
+      margin-top: 20px;
+    }
+
+    .help-block {
+      margin: 0;
+      padding: 0;
+    }
+
+    .resource-description, .response-info {
+      margin-bottom: 0;
+    }
+
+    .button-form:first-of-type {
+      margin-right: 0;
+    }
+
+    .navbar-default {
+      background-color: #393D3F;
+      height: 45px;
+    }
+
+    .navbar {
+      min-height: 0;
+    }
+
+    .navbar a {
+      padding-top: 12px !important;
+      padding-bottom: 12px !important;
+      margin: 0 !important;
+    }
+
+    .navbar-default .navbar-nav > li > a:hover, .navbar-default .navbar-nav > li > a:focus {
+      background: none !important;
+    }
+
+    .wrapper > div > form {
+      margin-left: 10px;
+    }
+
+    .wrapper > div > form:last-of-type {
+      margin-left: 0;
+    }
+  </style>
+{% endblock %}
+
+{% block title %}API Endpoints{% endblock %}
+
+{% block bootstrap_navbar_variant %}navbar navbar-default{% endblock %}
+
+{% block branding %}
+  <a class="navbar-brand" rel="nofollow"
+     href="/api">
+    API Endpoints
+  </a>
+{% endblock %}
+
+{% block userlinks %}
+  {{ block.super }}
+
+  <ul class="nav navbar-nav navbar-right">
+    <li>
+      <a href="/cms/">CMS</a>
+    </li>
+  </ul>
+{% endblock %}

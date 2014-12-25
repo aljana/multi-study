@@ -1,0 +1,31 @@
+---
+
+- name: install uwsgi
+  sudo: yes
+  apt: pkg=uwsgi state=present
+
+- name: install python2 uwsgi support
+  sudo: yes
+  apt: pkg=uwsgi-plugin-python state=present
+  when: not ansible.python_version or ansible.python_version == 2
+
+- name: install python3 uwsgi support
+  sudo: yes
+  apt: pkg=uwsgi-plugin-python3 state=present
+  when: ansible.python_version and ansible.python_version == 3
+
+- name: copy uwsgi apps
+  template: src=uwsgi.ini dest=/etc/uwsgi/apps-available/{{ ansible.project_name }}-{{ item.key }}.ini
+  sudo: yes
+  with_dict: apps
+  when: item.value.module is defined
+  notify:
+    - restart uwsgi
+
+- name: enable uwsgi apps
+  file: src=/etc/uwsgi/apps-available/{{ ansible.project_name }}-{{ item.key }}.ini dest=/etc/uwsgi/apps-enabled/{{ ansible.project_name }}-{{ item.key }}.ini state=link
+  sudo: yes
+  with_dict: apps
+  when: item.value.module is defined
+  notify:
+    - restart uwsgi

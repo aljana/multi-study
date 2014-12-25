@@ -1,0 +1,36 @@
+environment: production
+
+hosts:
+  public:
+    domain: public.multi-study.com
+    url: http://public.multi-study.com
+
+  dev:
+    domain: dev.multi-study.com
+    url: http://dev.multi-study.com
+
+  api:
+    domain: api.multi-study.com
+    url: http://api.multi-study.com
+    dir: workspace/_projects/_hosts/api
+
+  auth:
+    domain: auth.multi-study.com
+    url: http://auth.multi-study.com
+    dir: workspace/_projects/_hosts/auth
+
+  cms:
+    domain: cms.multi-study.com
+    url: http://cms.multi-study.com
+    dir: workspace/_projects/_hosts/cms
+
+  www:
+    domain: www.multi-study.com
+    url: http://www.multi-study.com
+    dir: workspace/www
+
+#  ws:
+#    domain: ws.multi-study.com
+#    url: http://ws.multi-study.com
+#    dir: workspace/socket
+#    npm: yes

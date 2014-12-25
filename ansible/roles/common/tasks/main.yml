@@ -1,0 +1,25 @@
+---
+
+- name: update apt cache
+  sudo: yes
+  apt: update_cache=yes
+
+- name: install apt packages
+  sudo: yes
+  apt: pkg={{ item }} state=present
+  with_items:
+    - git
+    - curl
+    - build-essential
+    - libyaml-dev
+    - libssl-dev
+    - libjpeg-dev
+    - zlib1g-dev
+
+- name: set permissions for bash scripts
+  file: path={{ item }} mode=0755
+  with_fileglob:
+    - "{{ root_dir }}/ansible/roles/*/scripts/*.sh"
+
+- name: set permission for manage.py
+  file: path={{ root_dir }}/workspace/manage.py mode=0755
