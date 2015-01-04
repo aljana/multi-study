@@ -41,3 +41,9 @@ In order to access each app coresponding development servers have to be up and r
 4. Run `gulp build` on host machine
 5. Run `gulp runserver` on host machine
 6. Run `gulp livereload` on VM
+
+### Notes
+If you are developing with Node.js on host machine make sure Node.js and following packages are installed globally:
+- gulp
+- bower
+Example: `npm install -g gulp bower`
