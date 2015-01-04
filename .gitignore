@@ -21,12 +21,10 @@ pip-delete-this-directory.txt
 node_modules/
 jspm/github/
 jspm/npm/
+bower/
 
-# Root
+/workspace/_settings/
 /ansible/librarian/
 /public/media/
 /public/static/*
 !/public/static/www/
-
-# Frontend
-/workspace/www/bower/

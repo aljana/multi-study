@@ -10,5 +10,8 @@
     "gulp": "^3.8.10",
     "gulp-develop-server": "^0.2.5",
     "gulp-jshint": "^1.9.0"
+  },
+  "app": {
+    "port": 8002
   }
 }

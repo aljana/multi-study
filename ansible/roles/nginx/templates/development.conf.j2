@@ -1,9 +1,9 @@
 server {
     listen 80;
-    server_name {{ hosts.dev.domain }};
+    server_name {{ hosts.development.domain }};
     charset utf-8;
 
-    error_log /var/log/nginx/{{ workspace }}-dev-error.log crit;
+    error_log /var/log/nginx/{{ workspace }}-development-error.log crit;
     client_max_body_size 75M;
     gzip_static on;
     gzip_vary on;

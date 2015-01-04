@@ -46,23 +46,23 @@
   npm: name={{ item }} executable={{ home_dir }}/.nvm/{{ node_version }}/bin/npm global=true state=present
   with_items: node_packages
 
-- name: install app packages for windows host
-  command: sudo -iu {{ system_user }} {{ root_dir }}/ansible/roles/node/scripts/npm.sh 1 {{ home_dir }} {{ root_dir }}/{{ item.value.dir }}
-  with_dict: hosts
-  when: system_host is defined and system_host == "windows" and item.value.dir is defined and item.value.npm is defined
+#- name: install app packages for windows host
+#  command: sudo -iu {{ system_user }} {{ root_dir }}/ansible/roles/node/scripts/npm.sh 1 {{ home_dir }} {{ root_dir }}/{{ item.value.dir }}
+#  with_dict: hosts
+#  when: system_host is defined and system_host == "windows" and item.value.dir is defined and item.value.npm is defined
+#
+#- name: install app packages for unix host
+#  command: sudo -iu {{ system_user }} {{ root_dir }}/ansible/roles/node/scripts/npm.sh 0 {{ home_dir }} {{ root_dir }}/{{ item.value.dir }}
+#  with_dict: hosts
+#  when: (system_host is not defined or system_host != "windows") and item.value.dir is defined and item.value.npm is defined
 
-- name: install app packages for unix host
-  command: sudo -iu {{ system_user }} {{ root_dir }}/ansible/roles/node/scripts/npm.sh 0 {{ home_dir }} {{ root_dir }}/{{ item.value.dir }}
-  with_dict: hosts
-  when: (system_host is not defined or system_host != "windows") and item.value.dir is defined and item.value.npm is defined
+#- name: install bower packages
+#  command: sudo -iu {{ system_user }} {{ root_dir }}/ansible/roles/node/scripts/bower.sh {{ home_dir }} {{ root_dir }}/{{ item.value.dir }}
+#  sudo_user: system_user
+#  with_dict: hosts
+#  when: item.value.dir is defined and item.value.bower is defined
 
-- name: install bower packages
-  command: sudo -iu {{ system_user }} {{ root_dir }}/ansible/roles/node/scripts/bower.sh {{ home_dir }} {{ root_dir }}/{{ item.value.dir }}
-  sudo_user: system_user
-  with_dict: hosts
-  when: item.value.dir is defined and item.value.bower is defined
-
-- name: build with gulp
-  command: sudo -iu {{ system_user }} {{ root_dir }}/ansible/roles/node/scripts/gulp.sh {{ item.value.gulp }} {{ home_dir }} {{ root_dir }}/{{ item.value.dir }}
-  with_dict: hosts
-  when: item.value.dir is defined and item.value.gulp is defined
+#- name: build with gulp
+#  command: sudo -iu {{ system_user }} {{ root_dir }}/ansible/roles/node/scripts/gulp.sh {{ item.value.gulp }} {{ home_dir }} {{ root_dir }}/{{ item.value.dir }}
+#  with_dict: hosts
+#  when: item.value.dir is defined and item.value.gulp is defined

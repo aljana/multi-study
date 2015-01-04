@@ -2,6 +2,7 @@
 # vi: set ft=ruby :
 
 require 'yaml'
+require 'json'
 require 'rbconfig'
 
 def merge_settings(a, b)
@@ -49,7 +50,10 @@ else
 end
 
 # Write merged settings
-File.open('.settings.yml', 'w') { |f| f.write settings.to_yaml }
+unless File.directory?('.tmp')
+  FileUtils.mkdir_p('.tmp')
+end
+File.open('.tmp/settings.json', 'w') { |f| f.write settings.to_json }
 
 # Set up constants
 VAGRANTFILE_API_VERSION = '2'

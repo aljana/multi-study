@@ -70,7 +70,7 @@ gulp.task('compile styles', function () {
       .pipe(filters.css2)
       .pipe(require('gulp-preprocess')({context: settings.flat}))
       .pipe(filters.css2.restore()),
-    gulp.src(['./src/*/**/*.*', '!./src/*/**/*.{html,css,less,js,coffee,txt}'], {
+    gulp.src(['./src/*/**/*.*', '!./src/*/**/*.{html,css,less,js,txt}'], {
       read: false,
       base: path.resolve('./src')
     })
@@ -463,8 +463,6 @@ gulp.task('watch for file changes', function () {
 
     if (ext === 'less') {
       relpath = relpath.replace(/\..+$/, '.css');
-    } else if (ext === 'coffee') {
-      relpath = relpath.replace(/\..+$/, '.js');
     }
 
     if (_.contains(['less', 'css'], ext)) {
@@ -475,7 +473,7 @@ gulp.task('watch for file changes', function () {
       }
     }
 
-    if (_.contains(['js', 'coffee'], ext)) {
+    if (_.contains(['js'], ext)) {
       if (event === 'add') {
         scheduler.dispatch({sync: ['compile javascripts', 'compile main html files']});
       } else if (event === 'change') {
@@ -499,7 +497,7 @@ gulp.task('watch for file changes', function () {
       fs.exists(relpath, function (exists) {
         if (exists) {
           require('del')(relpath, {force: true}, function () {
-            if (event === 'unlink' && _.contains(['less', 'coffee', 'css', 'js'], ext)) {
+            if (event === 'unlink' && _.contains(['less', 'css', 'js'], ext)) {
               scheduler.dispatch('compile main html files');
             }
           });

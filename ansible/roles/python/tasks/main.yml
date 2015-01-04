@@ -35,25 +35,28 @@
 - name: install pip requirements
   command: sudo -iu {{ system_user }} {{ root_dir }}/ansible/roles/python/scripts/pip.sh {{ home_dir }}/.virtualenv/{{ virtualenv }}/bin/activate {{ root_dir }}/requirements.txt
 
-#- name: apply django migrations
-#  django_manage: >
-#    command=migrate
-#    app_path={{ ansible.project_dir }}/apps
-#    settings={{ apps.project.module }}.settings.development
-#    virtualenv={{ ansible.home_dir }}/{{ ansible.project_name }}
-#
-#- name: load django fixtures
-#  django_manage: >
-#    command=loaddata
-#    fixtures=initial_data
-#    app_path={{ ansible.project_dir }}/apps
-#    settings={{ apps.project.module }}.settings.development
-#    virtualenv={{ ansible.home_dir }}/{{ ansible.project_name }}
-#
-#- name: collect django static
-#  django_manage: >
-#    command=collectstatic
-#    app_path={{ ansible.project_dir }}/apps
-#    virtualenv={{ ansible.home_dir }}/{{ ansible.project_name }}
-#
-#
+- name: setup workspace
+  command: "{{ root_dir }}/setup.py"
+  args:
+    chdir: "{{ root_dir }}"
+
+- name: apply django migrations
+  django_manage: >
+    command=migrate
+    app_path={{ root_dir }}/workspace
+    settings=_project.settings
+    virtualenv={{ home_dir }}/.virtualenv/{{ virtualenv }}
+
+- name: load django fixtures
+  django_manage: >
+    command=loaddata
+    fixtures=initial_data
+    app_path={{ root_dir }}/workspace
+    settings=_project.settings
+    virtualenv={{ home_dir }}/.virtualenv/{{ virtualenv }}
+
+- name: collect django static
+  django_manage: >
+    command=collectstatic
+    app_path={{ root_dir }}/workspace
+    virtualenv={{ home_dir }}/.virtualenv/{{ virtualenv }}

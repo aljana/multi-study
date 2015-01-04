@@ -21,5 +21,8 @@
   with_fileglob:
     - "{{ root_dir }}/ansible/roles/*/scripts/*.sh"
 
-- name: set permission for manage.py
+- name: set permission for setup.py
+  file: path={{ root_dir }}/setup.py mode=0755
+
+- name: set permission for workspace/manage.py
   file: path={{ root_dir }}/workspace/manage.py mode=0755

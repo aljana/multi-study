@@ -5,7 +5,7 @@ hosts:
     domain: public.multi-study.local
     url: http://public.multi-study.local
 
-  dev:
+  development:
     domain: dev.multi-study.local
     url: http://dev.multi-study.local
 
@@ -28,15 +28,8 @@ hosts:
     bower: yes
     gulp: build-staging
 
-#  ws:
-#    domain: ws.multi-study.local
-#    url: http://ws.multi-study.local
-#    npm: yes
-#    gulp: build
-
-  prerender:
-    host: localhost:3000
-    url: http://localhost:3000
-    dir: workspace/prerender
-    git: https://github.com/prerender/prerender.git
+  ws:
+    domain: ws.multi-study.local
+    url: http://ws.multi-study.local
     npm: yes
+    gulp: build

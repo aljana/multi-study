@@ -10,20 +10,17 @@
   <meta charset="utf-8">
 
 
-    <base href="/www/frontend/">
+    <base href="/">
   <!-- build:css(.) common/vendor.css -->
   <!-- bower:css -->
-  <link rel="stylesheet" href="/www/bower/font-awesome/css/font-awesome.css">
-  <link rel="stylesheet" href="/www/bower/fontawesome/css/font-awesome.css">
-  <link rel="stylesheet" href="/www/bower/angular-toastr/dist/angular-toastr.css">
-  <link rel="stylesheet" href="/www/bower/angular-loading-bar/build/loading-bar.css">
-  <link rel="stylesheet" href="/www/bower/bootstrap/dist/css/bootstrap.css">
+  <link rel="stylesheet" href="/bower/angular-loading-bar/build/loading-bar.css">
+  <link rel="stylesheet" href="/bower/bootstrap/dist/css/bootstrap.css">
   <!-- endinject -->
   <!-- endbuild -->
 
-    <!-- build:css(./build) frontend/frontend.css -->
+    <!-- build:css(./dist) frontend/frontend.css -->
   <!-- frontend:css -->
-  <link rel="stylesheet" href="/www/frontend/common/styles/app.css">
+  <link rel="stylesheet" href="/frontend/common/styles/app.css">
   <!-- endinject -->
 
   <!-- frontend:js -->
@@ -36,34 +33,24 @@
 
 <!-- build:js(.) common/vendor.js -->
 <!-- bower:js -->
-<script src="/www/bower/angular/angular.js"></script>
-<script src="/www/bower/angular-cookies/angular-cookies.js"></script>
-<script src="/www/bower/angular-animate/angular-animate.js"></script>
-<script src="/www/bower/angular-ui-router/release/angular-ui-router.js"></script>
-<script src="/www/bower/angular-ui-utils/ui-utils.js"></script>
-<script src="/www/bower/angular-bootstrap/ui-bootstrap-tpls.js"></script>
-<script src="/www/bower/angular-cache/dist/angular-cache.min.js"></script>
-<script src="/www/bower/angular-resource/angular-resource.js"></script>
-<script src="/www/bower/angular-sanitize/angular-sanitize.js"></script>
-<script src="/www/bower/json3/lib/json3.js"></script>
-<script src="/www/bower/es5-shim/es5-shim.js"></script>
-<script src="/www/bower/jquery/dist/jquery.js"></script>
-<script src="/www/bower/angular-toastr/dist/angular-toastr.js"></script>
-<script src="/www/bower/angular-utf8-base64/angular-utf8-base64.js"></script>
-<script src="/www/bower/angular-loading-bar/build/loading-bar.js"></script>
-<script src="/www/bower/angular-fontawesome/dist/angular-fontawesome.js"></script>
-<script src="/www/bower/bootstrap/dist/js/bootstrap.js"></script>
-<script src="/www/bower/socket.io-client/socket.io.js"></script>
+<script src="/bower/angular/angular.js"></script>
+<script src="/bower/angular-ui-router/release/angular-ui-router.js"></script>
+<script src="/bower/angular-bootstrap/ui-bootstrap-tpls.js"></script>
+<script src="/bower/angular-cache/dist/angular-cache.min.js"></script>
+<script src="/bower/angular-resource/angular-resource.js"></script>
+<script src="/bower/angular-sanitize/angular-sanitize.js"></script>
+<script src="/bower/angular-loading-bar/build/loading-bar.js"></script>
+<script src="/bower/es5-shim/es5-shim.js"></script>
+<script src="/bower/jquery/dist/jquery.js"></script>
+<script src="/bower/bootstrap/dist/js/bootstrap.js"></script>
+<script src="/bower/socket.io-client/socket.io.js"></script>
 <!-- endinject -->
-<script src="/www/jspm/traceur-runtime.js"></script>
-<script src="/www/jspm/system.js"></script>
+<script src="/jspm/traceur-runtime.js"></script>
 <!-- endbuild -->
 
-<script src="/www/config.js"></script>
-<script type="text/javascript">
-  System.baseURL = '/www/';
-  System.import('./frontend/app');
-</script>
+<!-- build:js(./dist) frontend/frontend.js -->
+<script src="frontend/build.js"></script>
+<!-- endbuild -->
 </body>
 </html>
 

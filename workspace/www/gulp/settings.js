@@ -36,28 +36,11 @@ function flatten(flat, settings, key) {
       }
     } else if (key) {
       flat[key + '.' + k] = v;
-      //flat['$' + key + '.' + k] = v;
     } else {
       flat[k] = v;
-      //flat['$' + k] = v;
     }
   });
   return flat;
-}
-
-function load(settings, filename) {
-  var yaml = require('js-yaml'), fp = path.resolve(filename);
-  if (fs.existsSync(fp)) {
-    if (settings) {
-      settings = merge(settings, yaml.load(fs.readFileSync(fp, 'utf8')));
-    } else {
-      settings = yaml.load(fs.readFileSync(fp, 'utf8'));
-    }
-  }
-  if (settings) {
-    return settings;
-  }
-  return {};
 }
 
 module.exports = function (env, bp, appstg, dir) {
@@ -72,25 +55,20 @@ module.exports = function (env, bp, appstg, dir) {
     versions: false
   };
 
-  settings.workspace = load(settings.workspace, path.join(dir, 'settings/base.yml'));
-  settings.workspace = load(settings.workspace, path.join(dir, 'settings/base.local.yml'));
-  settings.workspace = load(settings.workspace, path.join(dir, 'settings/production.yml'));
-  settings.workspace = load(settings.workspace, path.join(dir, 'settings/production.local.yml'));
-  settings.app = merge(appstg.base || {}, appstg.production || {});
-
-  if (env === 'staging' || env === 'development') {
-    settings.workspace = load(settings.workspace, path.join(dir, 'settings/staging.yml'));
-    settings.workspace = load(settings.workspace, path.join(dir, 'settings/staging.local.yml'));
-    //noinspection JSUnresolvedVariable
-    settings.app = merge(settings.app, appstg.staging || {});
+  // Load workspace settings
+  if (env === 'production') {
+    settings.workspace = require(path.resolve('../_settings/production.json'));
+    settings.flat['$workspace'] = require(path.resolve('../_settings/production.flat.json'));
+  } else if (env === 'staging') {
+    settings.workspace = require(path.resolve('../_settings/staging.json'));
+    settings.flat['$workspace'] = require(path.resolve('../_settings/staging.flat.json'));
+  } else if (env === 'development') {
+    settings.workspace = require(path.resolve('../_settings/development.json'));
+    settings.flat['$workspace'] = require(path.resolve('../_settings/development.flat.json'));
   }
 
-  if (env === 'development') {
-    settings.workspace = load(settings.workspace, path.join(dir, 'settings/development.yml'));
-    settings.workspace = load(settings.workspace, path.join(dir, 'settings/development.local.yml'));
-    //noinspection JSUnresolvedVariable
-    settings.app = merge(settings.app, appstg.development || {});
-  }
+  // Load local settings
+  settings.app = appstg || {};
 
   if (env === 'staging' || env === 'production') {
     var contents = fs.readFileSync(path.resolve('./config.js'), {encoding: 'utf8'});
@@ -100,7 +78,6 @@ module.exports = function (env, bp, appstg, dir) {
 
   settings.app.name = path.basename(process.cwd());
   settings.app.modules = require('globby').sync(['./src/*', '!./src/*.*']);
-
   for (var i = 0; i < settings.app.modules.length; i++) {
     settings.app.modules[i] = path.basename(settings.app.modules[i]);
   }
@@ -109,7 +86,6 @@ module.exports = function (env, bp, appstg, dir) {
   settings.paths.build = path.resolve(bp);
   settings.paths.rel = path.basename(settings.paths.build);
 
-  settings.flat['$workspace'] = flatten(settings.flat['$workspace'], settings.workspace);
   settings.flat['$app'] = flatten(settings.flat['$app'], settings.app);
 
   return settings;

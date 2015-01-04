@@ -30,5 +30,5 @@ librarian-ansible install
 
 cp $ROOT_DIR/ansible/vagrant ${TEMP_HOSTS} && chmod -x ${TEMP_HOSTS}
 echo "Running provisioner: ansible..."
-ansible-playbook $ROOT_DIR/ansible/vagrant.yml --inventory-file=${TEMP_HOSTS} --extra-vars "@${ROOT_DIR}/.settings.yml" --verbose -v --connection=local
+ansible-playbook $ROOT_DIR/ansible/vagrant.yml --inventory-file=${TEMP_HOSTS} --extra-vars "@${ROOT_DIR}/.tmp/settings.json" --verbose -v --connection=local
 rm ${TEMP_HOSTS}

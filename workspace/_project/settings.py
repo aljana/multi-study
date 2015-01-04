@@ -1,22 +1,158 @@
 import os
+import json
 from datetime import timedelta
-
-os.environ.setdefault('DJANGO_ENV', 'development')
-
-from .workspace import *
-
 from django.conf.global_settings import TEMPLATE_CONTEXT_PROCESSORS as TCP
 
+# Get environment
+# os.environ.setdefault('DJANGO_ENV', 'development')
+DJANGO_ENV = os.environ.get('DJANGO_ENV', 'development')
 
+# Root project dir
+ROOT_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), '..')
+BASE_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)))
+
+# Set default site id for site framework
+SITE_ID = 1
+
+# Timezone
+TIME_ZONE = 'Europe/Paris'
+USE_TZ = True
+
+ALLOWED_HOSTS = ['*']
+
+# Internationalization
+LANGUAGE_CODE = 'en-us'
+USE_I18N = False
+USE_L10N = False
+
+# Cross origin configuration
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_HEADERS = (
+    'x-requested-with',
+    'content-type',
+    'accept',
+    'origin',
+    'authorization',
+    'x-csrftoken',
+    'x-token'
+)
+
+# Static and media
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(ROOT_DIR, 'public/static')
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(ROOT_DIR, 'public/media')
+
+# Unique secret key for cryptographic signing
+SECRET_KEY = os.environ.get('SECRET_KEY',
+                            'itu)*#x1n)(bnnpk+6c@si&(+!791'
+                            'fd&%7_ts@q&1fii!@a2$^')
+
+# Enable debug mode
+DEBUG = True
+TEMPLATE_DEBUG = True
+
+"""
+Caching settings.
+"""
+CACHES = {
+    'default': {
+        'BACKEND': 'redis_cache.cache.RedisCache',
+        'LOCATION': '127.0.0.1:6379:1',
+        'OPTIONS': {
+            'CLIENT_CLASS': 'redis_cache.client.DefaultClient',
+        }
+    },
+}
+
+"""
+Logging settings.
+"""
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s %(asctime)s %(module)s %(process)d '
+                      '%(thread)d %(message)s'
+        },
+        'simple': {
+            'format': '%(levelname)s %(message)s'
+        },
+    },
+    'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse'
+        }
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple'
+        },
+        'mail_admins': {
+            'level': 'ERROR',
+            'filters': ['require_debug_false'],
+            'class': 'django.utils.log.AdminEmailHandler'
+        }
+    },
+    'loggers': {
+        'project': {
+            'handlers': ['console'],
+            'propagate': True,
+            'level': 'INFO',
+        },
+        'django.request': {
+            'handlers': ['console', 'mail_admins'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
+    }
+}
+
+"""
+Load workspace settings.
+"""
+SETTINGS = {}
+if DJANGO_ENV == 'production':
+    SETTINGS = json.load(open(os.path.join(BASE_DIR, '_settings',
+                                           'production.upper.json'), 'r'))
+elif DJANGO_ENV == 'staging':
+    SETTINGS = json.load(open(os.path.join(BASE_DIR, '_settings',
+                                           'staging.upper.json'), 'r'))
+else:
+    SETTINGS = json.load(open(os.path.join(BASE_DIR, '_settings',
+                                           'development.upper.json'), 'r'))
+
+"""
+Staging & production specific settings.
+"""
+if DJANGO_ENV != 'development':
+    STATIC_URL = SETTINGS['HOSTS']['PUBLIC']['URL'] + '/static/'
+    MEDIA_URL = SETTINGS['HOSTS']['PUBLIC']['URL'] + '/media/'
+    DEBUG = False
+    TEMPLATE_DEBUG = False
+    ALLOWED_HOSTS = []
+
+    if SETTINGS.get('DOMAINS'):
+        for domain in SETTINGS['DOMAINS']:
+            ALLOWED_HOSTS.append('.' + domain)
+            ALLOWED_HOSTS.append('.' + domain + '.')
+
+# Managers & admins
 ADMINS = (('Jure Zvelc', 'jzvelc@gmail.com'),)
 MANAGERS = ADMINS
 
+"""
+Host specific settings.
+"""
 ROOT_URLCONF = '_project.urls'
 WSGI_APPLICATION = '_project.wsgi.application'
-SITE_URL = PROJECT['HOSTS']['DEV']['URL']
+SITE_URL = SETTINGS['HOSTS']['DEVELOPMENT']['URL']
 CORS_URLS_REGEX = r'^/api/.*$'
 AUTH_USER_MODEL = 'users.User'
-#SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
+# SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
 
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'api/static'),
@@ -29,11 +165,11 @@ TEMPLATE_DIRS = [
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': PROJECT['DATABASES']['POSTGRESQL']['NAME'],
-        'USER': PROJECT['DATABASES']['POSTGRESQL']['USER'],
-        'PASSWORD': PROJECT['DATABASES']['POSTGRESQL']['PASSWORD'],
-        'HOST': PROJECT['DATABASES']['POSTGRESQL']['HOST'],
-        'PORT': PROJECT['DATABASES']['POSTGRESQL']['PORT']
+        'NAME': SETTINGS['DATABASES']['POSTGRESQL']['NAME'],
+        'USER': SETTINGS['DATABASES']['POSTGRESQL']['USER'],
+        'PASSWORD': SETTINGS['DATABASES']['POSTGRESQL']['PASSWORD'],
+        'HOST': SETTINGS['DATABASES']['POSTGRESQL']['HOST'],
+        'PORT': SETTINGS['DATABASES']['POSTGRESQL']['PORT']
     }
 }
 

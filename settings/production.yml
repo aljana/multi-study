@@ -5,7 +5,7 @@ hosts:
     domain: public.multi-study.com
     url: http://public.multi-study.com
 
-  dev:
+  development:
     domain: dev.multi-study.com
     url: http://dev.multi-study.com
 
@@ -29,8 +29,7 @@ hosts:
     url: http://www.multi-study.com
     dir: workspace/www
 
-#  ws:
-#    domain: ws.multi-study.com
-#    url: http://ws.multi-study.com
-#    dir: workspace/socket
-#    npm: yes
+  ws:
+    domain: ws.multi-study.com
+    url: http://ws.multi-study.com
+    dir: workspace/socket

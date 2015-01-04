@@ -25,7 +25,8 @@ class Quiz(models.Model):
     owner = models.ForeignKey(settings.AUTH_USER_MODEL)
     title = models.CharField(_('Title'), max_length=120)
     state = FSMField(default=STATES.CLOSED, choices=STATE_CHOICES)
-    start = models.TimeField(default=datetime.datetime.now() + datetime.timedelta(hours=1))
+    start = models.TimeField(
+        default=datetime.datetime.now() + datetime.timedelta(hours=1))
     recurrences = RecurrenceField()
 
     class Meta:
@@ -47,3 +48,21 @@ class Quiz(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class Question(models.Model):
+    class TYPES:
+        RADIO = 0
+        CHECKBOX = 1
+
+    quiz = models.ForeignKey(Quiz)
+    title = models.CharField(max_length=254)
+    text = models.TextField()
+    order = models.PositiveIntegerField()
+    duration = models.PositiveIntegerField(_('Duration (minutes)'), default=5)
+
+
+class Answer(models.Model):
+    question = models.ForeignKey(Question)
+    value = models.TextField()
+    order = models.PositiveIntegerField()

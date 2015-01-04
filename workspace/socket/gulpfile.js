@@ -4,7 +4,7 @@ var gulp = require('gulp'),
 
 gulp.task('lint', function () {
   gulp.src('./src/**/*.js')
-    .pipe(jshint())
+    .pipe(jshint());
 });
 
 gulp.task('serve', function () {

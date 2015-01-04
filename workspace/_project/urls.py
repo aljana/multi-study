@@ -1,15 +1,14 @@
 from django.conf import settings
 from django.conf.urls import patterns, include, url
-from django.views.generic import RedirectView
 from django.conf.urls.static import static
 from django.contrib import admin
 
-from .views import api
+from .views import api, sitemap
 
 urlpatterns = patterns(
     '',
 
-    url(r'^$', RedirectView.as_view(url='/api/')),
+    url(r'^$', sitemap),
 
     url(r'^cms/', include(admin.site.urls)),
 

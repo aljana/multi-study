@@ -2,12 +2,12 @@
 
 - hosts: all
   roles:
-#      - common
-#      - sysctl
-#      - postgresql
-#      - redis
-#      - git
-#      - python
-#      - node
-      #- uwsgi
-      - nginx
+    - common
+    - sysctl
+    - postgresql
+    - redis
+    - git
+    - python
+    - node
+    - uwsgi
+    - nginx

@@ -1,6 +1,7 @@
 # System user
 system_user: vagrant
 
+# Workspace name
 workspace: multi-study
 
 # Databases
@@ -12,6 +13,31 @@ databases:
     host: localhost
     port: 5432
     name: multi_study
+  redis0:
+    type: redis
+    host: localhost
+    port: 6379
+    db: 0
+  redis1:
+    type: redis
+    host: localhost
+    port: 6379
+    db: 1
+  redis2:
+    type: redis
+    host: localhost
+    port: 6379
+    db: 2
+  redis3:
+    type: redis
+    host: localhost
+    port: 6379
+    db: 3
+  redis4:
+    type: redis
+    host: localhost
+    port: 6379
+    db: 4
 
 # Dirs
 home_dir: /home/vagrant

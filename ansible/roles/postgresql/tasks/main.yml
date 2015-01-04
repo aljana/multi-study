@@ -17,7 +17,7 @@
   sudo_user: postgres
   postgresql_db: name={{ item.value.name }} encoding='UTF-8' state=present
   with_dict: databases
-  when: item.value.type == "postgresql"
+  when: item.value.type and item.value.type == "postgresql"
 
 - name: create postgresql user
   sudo: yes
