@@ -10,11 +10,11 @@
 6. Setup PyCharm
 
 ### Hosts
-10.1.1.3 www.multi-study.local
-
-10.1.1.3 dev.multi-study.local
-
-10.1.1.3 public.multi-study.local
+```
+10.1.1.3 www.multi-study.local <br />
+10.1.1.3 dev.multi-study.local <br />
+10.1.1.3 public.multi-study.local <br />
+```
 
 ### PyCharm
 1. Install EditorConfig plugin

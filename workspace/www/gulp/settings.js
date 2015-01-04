@@ -65,6 +65,7 @@ module.exports = function (env, bp, appstg, dir) {
   } else if (env === 'development') {
     settings.workspace = require(path.resolve('../_settings/development.json'));
     settings.flat['$workspace'] = require(path.resolve('../_settings/development.flat.json'));
+    console.log(settings.flat['$workspace']);
   }
 
   // Load local settings

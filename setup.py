@@ -90,7 +90,7 @@ def merge(a, b):
 def parse(name, obj):
     try:
         # noinspection PyUnresolvedReferences
-        path = os.path.join(ROOT_DIR, 'settings', name + '.yml')
+        path = os.path.join(ROOT_DIR, name)
         fp = open(path, 'r')
         merge(obj, yaml.load(fp))
         fp.close()
@@ -109,22 +109,22 @@ def write(path, obj):
 
 
 if __name__ == '__main__':
-    settings = parse('testing', {})
+    settings = parse('settings/testing.yml', {})
     write('workspace/_settings/testing.json', settings)
     write('workspace/_settings/testing.upper.json', upper(settings))
     write('workspace/_settings/testing.flat.json', flatten(settings))
 
-    settings = parse('base', {})
-    settings = parse('base.local', settings)
-    settings = parse('production', settings)
-    settings = parse('production.local', settings)
+    settings = parse('settings/base.yml', {})
+    settings = parse('settings/base.local.yml', settings)
+    settings = parse('settings/production.yml', settings)
+    settings = parse('settings/production.local.yml', settings)
 
     write('workspace/_settings/production.json', settings)
     write('workspace/_settings/production.upper.json', upper(settings))
     write('workspace/_settings/production.flat.json', flatten(settings))
 
-    settings = parse('staging', settings)
-    settings = parse('staging.local', settings)
+    settings = parse('settings/staging.yml', settings)
+    settings = parse('settings/staging.local.yml', settings)
 
     write('workspace/_settings/staging.json', settings)
     write('workspace/_settings/staging.upper.json', upper(settings))
