@@ -1,0 +1,49 @@
+- model: quizzes.quiz
+  pk: 1
+  fields:
+    owner: 1
+    title: Test quiz
+    state: closed
+    recurrences: 0
+    start: 2014-01-18 19:09:39.330964+00:00
+
+- model: quizzes.question
+  pk: 1
+  fields:
+    quiz: 1
+    type: open
+    title: Glavno mesto Slovenije?
+    created: 2014-01-18 19:09:39.330964+00:00
+    time_limit: 60
+    order: 1
+
+- model: quizzes.answer
+  pk: 1
+  fields:
+    question: 1
+    text: Ljubljana
+    score: 1
+
+- model: quizzes.question
+  pk: 2
+  fields:
+    quiz: 1
+    type: open
+    title: Tretji planet po oddaljenosti od Sonca?
+    created: 2014-01-18 19:09:39.330964+00:00
+    time_limit: 60
+    order: 2
+
+- model: quizzes.answer
+  pk: 2
+  fields:
+    question: 2
+    text: Zemlja
+    score: 1
+
+- model: quizzes.quizsession
+  pk: 1
+  fields:
+    quiz: 1
+    created: 2014-01-18 19:09:39.330964+00:00
+    current_question: 1
