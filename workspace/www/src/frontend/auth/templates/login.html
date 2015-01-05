@@ -1,0 +1,25 @@
+<h1 class="page-header">Login</h1>
+
+<form name="form" novalidate>
+  <div class="form-group">
+    <label for="exampleInputEmail1">Email address</label>
+    <input ng-model="AuthController.email" name="email" type="email" class="form-control" id="exampleInputEmail1" placeholder="Enter email" required>
+    <div ng-show="form.email.$touched" class="form-error has-error">
+      <span ng-show="form.email.$error.required" class="help-block">Enter your email.</span>
+      <span ng-show="form.email.$error.email" class="help-block">This is not a valid email.</span>
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="exampleInputPassword1">Password</label>
+    <input ng-model="AuthController.password" name="password" type="password" class="form-control" id="exampleInputPassword1" placeholder="Password" required>
+    <div ng-show="form.password.$touched" class="form-error has-error">
+      <span ng-show="form.password.$error.required" class="help-block">Enter your password.</span>
+    </div>
+  </div>
+  <div class="checkbox">
+    <label>
+      <input ng-model="AuthController.rememberMe" type="checkbox"> Remember me
+    </label>
+  </div>
+  <button type="submit" class="btn btn-default" ng-click="AuthController.login()" ng-disabled="!form.$valid">Submit</button>
+</form>

@@ -1,1 +1,6 @@
 environment: development
+
+hosts:
+  api:
+    domain: dev.multi-study.local
+    url: http://dev.multi-study.local/api
