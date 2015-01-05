@@ -13,3 +13,11 @@ class AnswerSerializer(serializers.Serializer):
     def validate(self, data):
         return data
 
+class QuizSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Quiz
+        fields = ('title', 'state', 'start')
+
+class QuizLoginSerializer(serializers.Serializer):
+    def validate(self, data):
+        return data

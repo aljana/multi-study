@@ -9,7 +9,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.exceptions import ParseError, AuthenticationFailed
-from rest_framework.generics import CreateAPIView
+from rest_framework.generics import CreateAPIView, ListCreateAPIView, UpdateAPIView
 
 try:
     from djangorestframework_camel_case.render import CamelCaseJSONRenderer
@@ -21,6 +21,28 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from .models import *
 from .serializers import *
+
+
+class QuizList(ListCreateAPIView):
+    queryset = Quiz.objects.all()
+    serializer_class = QuizSerializer
+    paginate_by = 100
+
+
+class QuizSessionLogin(UpdateAPIView):
+    serializer_class = QuizLoginSerializer
+
+    def put(self, request, *args, **kwargs):
+        quiz_session_id, = args
+        quiz_session = get_object_or_404(QuizSession, id=quiz_session_id)
+
+         # TODO: should not be anonymous user
+
+        quiz_session.users.add(request.user)
+        quiz_session.save()
+
+        return Response(status=status.HTTP_200_OK)
+
 
 class QuizCurrentQuestion(APIView):
 

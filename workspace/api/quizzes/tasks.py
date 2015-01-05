@@ -2,7 +2,7 @@ from celery import shared_task
 from celery.utils.log import get_task_logger
 import datetime
 
-from .models import Quiz
+from .models import Quiz, QuizSession
 
 logger = get_task_logger(__name__)
 
@@ -25,3 +25,9 @@ def update_quiz_state():
                 quiz.open()
                 quiz.save()
 
+                # Create quiz session
+                session = QuizSession()
+                session.quiz = quiz
+                session.save()
+
+                # TODO: task for sending first question!

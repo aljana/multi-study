@@ -83,8 +83,10 @@ class Answer(models.Model):
 
 class QuizSession(models.Model):
     quiz = models.ForeignKey(Quiz)
+    users = models.ManyToManyField(settings.AUTH_USER_MODEL)
     created = models.DateTimeField(auto_now_add=True, blank=True)
     current_question = models.ForeignKey(Question, null=True)
+    active = models.BooleanField(default=True)
 
 
 class SubmittedAnswer(models.Model):

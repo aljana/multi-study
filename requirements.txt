@@ -12,7 +12,6 @@ django-debug-toolbar==1.2.2
 django-extensions==1.4.9
 django-fsm==2.2.0
 django-gravatar2==1.1.4
-django-recurrence==1.1.0
 django-mptt==0.6.1
 django-ordered-model==0.4.0
 django-recurrence==1.1.0
@@ -25,7 +24,6 @@ kombu==3.0.24
 oauthlib==0.7.2
 psycopg2==2.5.4
 python-dateutil==2.3
--e git+https://github.com/omab/python-social-auth.git@6d97ff65ffca7aefae85f76e1734fa7c75b66f28#egg=python_social_auth-origin/master
 python3-openid==3.0.5
 pytz==2014.10
 redis==2.10.3
@@ -35,3 +33,4 @@ requirements==0.1
 six==1.9.0
 sorl-thumbnail==12.1c
 sqlparse==0.1.14
+git+https://github.com/omab/python-social-auth.git@master
