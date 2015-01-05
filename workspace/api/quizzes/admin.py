@@ -2,8 +2,7 @@ from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 from suit.admin import SortableTabularInline
 
-from .models import Quiz, Question
-
+from .models import *
 
 class QuestionInline(SortableTabularInline):
     model = Question
@@ -15,7 +14,14 @@ class QuestionInline(SortableTabularInline):
 class QuizAdmin(admin.ModelAdmin):
     list_display = ('title', 'owner', 'state')
     list_filter = ('owner',)
-    inlines = (
-        QuestionInline,
-    )
+
+class AnswerInline(admin.StackedInline):
+    model = Answer
+
+@admin.register(Question)
+class QuestionAdmin(admin.ModelAdmin):
+    list_display = ('title',)
+    inlines = [AnswerInline,]
+
+
 

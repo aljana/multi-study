@@ -8,4 +8,5 @@ urlpatterns = patterns(
     '',
     url(r'^$', api),
     url('', include('api.users.urls', namespace='api.users')),
+    url('', include('api.quizzes.urls', namespace='api.quizzes')),
 )
