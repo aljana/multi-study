@@ -12,13 +12,15 @@ urlpatterns = patterns(
 
     url(r'^cms/', include(admin.site.urls)),
 
-    url(r'^local-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    url(r'^local-auth/',
+        include('rest_framework.urls', namespace='rest_framework')),
 
     url(r'^social-auth/', include('api.socialauth.urls')),
 
     url(r'^api/$', api),
 
     url(r'^api/', include('api.users.urls', namespace='api.users')),
-    url(r'^api/quiz/', include('api.quizzes.urls', namespace='api.quizzes')),
+
+    url(r'^api/', include('api.quizzes.urls', namespace='api.quizzes')),
 
 ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

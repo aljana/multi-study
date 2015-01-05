@@ -20,7 +20,7 @@ def api(request, format=None):
             'list': reverse('api.users:user-list', request=request,
                             format=format)
         },
-       # 'quizzes': {
-       #     'get_question': reverse('api.quizzes:question.get', request=request, format=format)
-       # }
+        # 'quizzes': {
+        # 'get_question': reverse('api.quizzes:question.get', request=request, format=format)
+        # }
     })

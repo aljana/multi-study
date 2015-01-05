@@ -3,9 +3,9 @@ from __future__ import unicode_literals
 
 from django.db import models, migrations
 import django_fsm
-import datetime
-from django.conf import settings
 import recurrence.fields
+import api.quizzes.models
+from django.conf import settings
 
 
 class Migration(migrations.Migration):
@@ -18,9 +18,10 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Answer',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('id', models.AutoField(serialize=False, auto_created=True, primary_key=True, verbose_name='ID')),
+                ('order', models.PositiveIntegerField()),
                 ('text', models.TextField(verbose_name='Text')),
-                ('score', models.IntegerField(verbose_name='Score', default=0)),
+                ('score', models.IntegerField(default=0, verbose_name='Score')),
             ],
             options={
             },
@@ -29,65 +30,61 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Question',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('title', models.CharField(verbose_name='Title', max_length=120)),
-                ('description', models.TextField(verbose_name='Description', null=True, blank=True)),
-                ('type', models.CharField(verbose_name='Question type', choices=[('open', 'Open')], max_length=50)),
-                ('time_limit', models.IntegerField(verbose_name='Time limit', default=60)),
-                ('created', models.DateTimeField(verbose_name='Date created', auto_now_add=True)),
+                ('id', models.AutoField(serialize=False, auto_created=True, primary_key=True, verbose_name='ID')),
+                ('title', models.CharField(max_length=120, verbose_name='Title')),
+                ('order', models.PositiveIntegerField()),
+                ('description', models.TextField(blank=True, null=True, verbose_name='Description')),
+                ('type', models.CharField(max_length=50, choices=[('open', 'Open')], verbose_name='Question type')),
+                ('time_limit', models.IntegerField(default=60, verbose_name='Time limit')),
+                ('date_created', models.DateTimeField(auto_now_add=True, verbose_name='Date created')),
             ],
             options={
             },
             bases=(models.Model,),
         ),
         migrations.CreateModel(
-            name='Quiz',
+            name='QuizInstance',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('title', models.CharField(verbose_name='Title', max_length=120)),
-                ('state', django_fsm.FSMField(choices=[('closed', 'Closed'), ('open', 'Open'), ('pending', 'Pending')], default='closed', max_length=50)),
-                ('start', models.TimeField(default=datetime.datetime(2015, 1, 4, 22, 26, 52, 216047))),
+                ('id', models.AutoField(serialize=False, auto_created=True, primary_key=True, verbose_name='ID')),
+                ('state', django_fsm.FSMField(max_length=50, choices=[('scheduled', 'Scheduled'), ('closed', 'Closed'), ('open', 'Open'), ('active', 'Active')], default='scheduled')),
+                ('time_created', models.DateTimeField(auto_now_add=True)),
+                ('date_created', models.DateField(auto_now_add=True)),
+                ('participants', models.ManyToManyField(to=settings.AUTH_USER_MODEL)),
+                ('question', models.ForeignKey(to='quizzes.Question', null=True)),
+            ],
+            options={
+                'verbose_name_plural': 'Instantiated Quizzes',
+                'ordering': ('date_created',),
+                'verbose_name': 'Instantiated Quiz',
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='QuizSchedule',
+            fields=[
+                ('id', models.AutoField(serialize=False, auto_created=True, primary_key=True, verbose_name='ID')),
+                ('title', models.CharField(max_length=120, verbose_name='Title')),
+                ('start', models.TimeField(default=api.quizzes.models.now_plus_1_hour)),
                 ('recurrences', recurrence.fields.RecurrenceField()),
                 ('owner', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
             ],
             options={
-                'verbose_name': 'quiz',
-                'verbose_name_plural': 'quizzes',
+                'verbose_name_plural': 'Scheduled Quizzes',
                 'ordering': ('recurrences',),
-            },
-            bases=(models.Model,),
-        ),
-        migrations.CreateModel(
-            name='QuizQuestionResults',
-            fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-            ],
-            options={
-            },
-            bases=(models.Model,),
-        ),
-        migrations.CreateModel(
-            name='QuizSession',
-            fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('created', models.DateTimeField(auto_now_add=True)),
-                ('current_question', models.ForeignKey(null=True, to='quizzes.Question')),
-                ('quiz', models.ForeignKey(to='quizzes.Quiz')),
-            ],
-            options={
+                'verbose_name': 'Scheduled Quiz',
             },
             bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='SubmittedAnswer',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('id', models.AutoField(serialize=False, auto_created=True, primary_key=True, verbose_name='ID')),
                 ('text', models.TextField(verbose_name='Text')),
-                ('score', models.IntegerField(verbose_name='Score', default=0)),
-                ('created', models.DateTimeField(verbose_name='Date submitted', auto_now_add=True)),
+                ('score', models.IntegerField(default=0, verbose_name='Score')),
+                ('date_created', models.DateTimeField(auto_now_add=True, verbose_name='Date submitted')),
                 ('question', models.ForeignKey(to='quizzes.Question')),
-                ('quiz_session', models.ForeignKey(to='quizzes.QuizSession')),
-                ('ref_answer', models.ForeignKey(null=True, blank=True, to='quizzes.Answer')),
+                ('quiz', models.ForeignKey(to='quizzes.QuizInstance')),
+                ('ref_answer', models.ForeignKey(blank=True, to='quizzes.Answer', null=True)),
                 ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
             ],
             options={
@@ -95,15 +92,27 @@ class Migration(migrations.Migration):
             bases=(models.Model,),
         ),
         migrations.AddField(
+            model_name='quizinstance',
+            name='schedule',
+            field=models.ForeignKey(to='quizzes.QuizSchedule'),
+            preserve_default=True,
+        ),
+        migrations.AddField(
             model_name='question',
-            name='quiz',
-            field=models.ForeignKey(to='quizzes.Quiz'),
+            name='schedule',
+            field=models.ForeignKey(to='quizzes.QuizSchedule'),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='answer',
             name='question',
             field=models.ForeignKey(related_name='answers', to='quizzes.Question'),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='answer',
+            name='schedule',
+            field=models.ForeignKey(to='quizzes.QuizSchedule'),
             preserve_default=True,
         ),
     ]

@@ -6,52 +6,84 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django_fsm import FSMField, transition
 from recurrence.fields import RecurrenceField
-from ordered_model.models import OrderedModel
 
 import redis
 
 
-class Quiz(models.Model):
-    class STATES:
-        OPEN = 'open'
-        CLOSED = 'closed'
-        PENDING = 'pending'
+def now_plus_1_hour():
+    return datetime.datetime.now() + datetime.timedelta(hours=1)
 
-    STATE_CHOICES = (
-        (STATES.CLOSED, 'Closed'),
-        (STATES.OPEN, 'Open'),
-        (STATES.PENDING, 'Pending'),
-    )
 
+class QuizSchedule(models.Model):
     owner = models.ForeignKey(settings.AUTH_USER_MODEL)
     title = models.CharField(_('Title'), max_length=120)
-    state = FSMField(default=STATES.CLOSED, choices=STATE_CHOICES)
-    start = models.TimeField(
-        default=datetime.datetime.now() + datetime.timedelta(hours=1))
+    start = models.TimeField(default=now_plus_1_hour)
     recurrences = RecurrenceField()
 
     class Meta:
-        verbose_name = _('quiz')
-        verbose_name_plural = _('quizzes')
+        verbose_name = _('Scheduled Quiz')
+        verbose_name_plural = _('Scheduled Quizzes')
         ordering = ('recurrences',)
-
-    @transition(field=state, source=STATES.CLOSED, target=STATES.OPEN)
-    def open(self):
-        message = {
-            'id': self.pk,
-            'model': 'Quiz',
-            'action': 'change-state',
-            'previous': Quiz.STATES.CLOSED,
-            'current': Quiz.STATES.OPEN
-        }
-        r = redis.StrictRedis(host='localhost', port=6379, db=4)
-        r.publish('quiz:0', json.dumps(message))
 
     def __str__(self):
         return self.title
 
 
-class Question(OrderedModel):
+class QuizInstance(models.Model):
+    class STATES:
+        OPEN = 'open'
+        CLOSED = 'closed'
+        ACTIVE = 'active'
+        SCHEDULED = 'scheduled'
+
+    STATE_CHOICES = (
+        (STATES.SCHEDULED, 'Scheduled'),
+        (STATES.CLOSED, 'Closed'),
+        (STATES.OPEN, 'Open'),
+        (STATES.ACTIVE, 'Active'),
+    )
+
+    schedule = models.ForeignKey(QuizSchedule)
+    state = FSMField(default=STATES.SCHEDULED, choices=STATE_CHOICES)
+    participants = models.ManyToManyField(settings.AUTH_USER_MODEL)
+    question = models.ForeignKey('Question', null=True)
+    time_created = models.DateTimeField(auto_now_add=True, blank=True)
+    date_created = models.DateField(auto_now_add=True, blank=True)
+
+    @transition(field=state, source=STATES.SCHEDULED, target=STATES.OPEN)
+    def open(self):
+        message = {
+            'id': self.pk,
+            'model': 'QuizInstance',
+            'action': 'change-state',
+            'previous': QuizInstance.STATES.SCHEDULED,
+            'current': QuizInstance.STATES.OPEN
+        }
+        r = redis.StrictRedis(host='localhost', port=6379, db=4)
+        r.publish('quiz:0', json.dumps(message))
+
+    @transition(field=state, source=STATES.OPEN, target=STATES.ACTIVE)
+    def open(self):
+        message = {
+            'id': self.pk,
+            'model': 'QuizInstance',
+            'action': 'change-state',
+            'previous': QuizInstance.STATES.OPEN,
+            'current': QuizInstance.STATES.ACTIVE
+        }
+        r = redis.StrictRedis(host='localhost', port=6379, db=4)
+        r.publish('quiz:0', json.dumps(message))
+
+    class Meta:
+        verbose_name = _('Instantiated Quiz')
+        verbose_name_plural = _('Instantiated Quizzes')
+        ordering = ('date_created',)
+
+    def __str__(self):
+        return self.schedule.title
+
+
+class Question(models.Model):
     DEFAULT_TIME_LIMIT = 60
 
     class QuestionType:
@@ -61,19 +93,25 @@ class Question(OrderedModel):
         (QuestionType.OPEN, "Open"),
     )
 
-    quiz = models.ForeignKey(Quiz)
+    schedule = models.ForeignKey(QuizSchedule)
     title = models.CharField(_('Title'), max_length=120)
+    order = models.PositiveIntegerField()
     description = models.TextField(_('Description'), null=True, blank=True)
-    type = models.CharField(_('Question type'), choices=TYPE_CHOICES, max_length=50)
-    time_limit = models.IntegerField(_('Time limit'), default=DEFAULT_TIME_LIMIT)
-    created = models.DateTimeField(_('Date created'), auto_now_add=True, blank=True)
+    type = models.CharField(_('Question type'), choices=TYPE_CHOICES,
+                            max_length=50)
+    time_limit = models.IntegerField(_('Time limit'),
+                                     default=DEFAULT_TIME_LIMIT)
+    date_created = models.DateTimeField(_('Date created'), auto_now_add=True,
+                                        blank=True)
 
-    class Meta(OrderedModel.Meta):
-        pass
+    def __str__(self):
+        return self.title
 
 
 class Answer(models.Model):
+    schedule = models.ForeignKey(QuizSchedule)
     question = models.ForeignKey(Question, related_name="answers")
+    order = models.PositiveIntegerField()
     text = models.TextField(_('Text'))
     score = models.IntegerField(_('Score'), default=0)
 
@@ -81,19 +119,12 @@ class Answer(models.Model):
         return answer.lower().strip() == self.text.lower().strip()
 
 
-class QuizSession(models.Model):
-    quiz = models.ForeignKey(Quiz)
-    users = models.ManyToManyField(settings.AUTH_USER_MODEL)
-    created = models.DateTimeField(auto_now_add=True, blank=True)
-    current_question = models.ForeignKey(Question, null=True)
-    active = models.BooleanField(default=True)
-
-
 class SubmittedAnswer(models.Model):
     text = models.TextField(_('Text'))
     question = models.ForeignKey(Question)
-    quiz_session = models.ForeignKey(QuizSession)
+    quiz = models.ForeignKey(QuizInstance)
     score = models.IntegerField(_('Score'), default=0)
     user = models.ForeignKey(settings.AUTH_USER_MODEL)
-    created = models.DateTimeField(_('Date submitted'), auto_now_add=True, blank=True)
+    date_created = models.DateTimeField(_('Date submitted'), auto_now_add=True,
+                                        blank=True)
     ref_answer = models.ForeignKey(Answer, null=True, blank=True)

@@ -1,23 +1,76 @@
 from rest_framework import serializers
 from .models import *
 
+
+class SubmittedAnswerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SubmittedAnswer
+        fields = ('text',)
+
+
+class AnswerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Answer
+
+
 class QuestionSerializer(serializers.ModelSerializer):
+    # answers = AnswerSerializer(many=True)
+
     class Meta:
         model = Question
         fields = ('title', 'description', 'type', 'time_limit')
 
 
-class AnswerSerializer(serializers.Serializer):
-    answer = serializers.CharField()
+class QuizSerializer(serializers.HyperlinkedModelSerializer):
+    details = serializers.HyperlinkedIdentityField(
+        view_name='api.quizzes:quiz-detail',
+    )
 
-    def validate(self, data):
-        return data
+    participate = serializers.HyperlinkedIdentityField(
+        view_name='api.quizzes:quiz-participate',
+    )
 
-class QuizSerializer(serializers.ModelSerializer):
+    submit_answer = serializers.HyperlinkedIdentityField(
+        view_name='api.quizzes:quiz-submit-answer',
+    )
+
+    total_participants = serializers.SerializerMethodField()
+
     class Meta:
-        model = Quiz
-        fields = ('title', 'state', 'start')
+        model = QuizInstance
+        fields = (
+            'pk', 'state', 'total_participants', 'details', 'participate', 'submit_answer'
+        )
 
-class QuizLoginSerializer(serializers.Serializer):
-    def validate(self, data):
-        return data
+    @staticmethod
+    def get_total_participants(obj):
+        return obj.participants.count()
+
+
+class QuizDetailSerializer(QuizSerializer):
+    question = QuestionSerializer()
+
+    class Meta:
+        model = QuizInstance
+        fields = (
+            'pk', 'state', 'total_participants', 'details', 'question',
+            'participate', 'submit_answer'
+        )
+
+#
+# class QuestionSerializer(serializers.ModelSerializer):
+# class Meta:
+# model = Question
+# fields = ('title', 'description', 'type', 'time_limit')
+#
+#
+# class AnswerSerializer(serializers.Serializer):
+#     answer = serializers.CharField()
+#
+#     def validate(self, data):
+#         return data
+#
+#
+# class QuizLoginSerializer(serializers.Serializer):
+#     def validate(self, data):
+#         return data

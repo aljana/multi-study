@@ -185,6 +185,7 @@ INSTALLED_APPS = (
     'django_extensions',
     'django_gravatar',
     'debug_toolbar',
+    'ordered_model',
     'rest_framework',
     'recurrence',
     'mptt',
@@ -246,8 +247,6 @@ DEBUG_TOOLBAR_PANELS = [
     'debug_toolbar.panels.redirects.RedirectsPanel',
 ]
 
-INTERNAL_IPS = ('10.1.1.1',)
-
 REST_FRAMEWORK = {
     'DEFAULT_MODEL_SERIALIZER_CLASS': 'rest_framework.serializers.' +
                                       'ModelSerializer',
@@ -277,8 +276,16 @@ CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 
 CELERYBEAT_SCHEDULE = {
-    'update_quiz_state': {
-        'task': 'api.quizzes.tasks.update_quiz_state',
+    'schedule_quiz': {
+        'task': 'api.quizzes.tasks.schedule_quiz',
+        'schedule': timedelta(seconds=2)
+    },
+    'change_quiz_state': {
+        'task': 'api.quizzes.tasks.change_quiz_state',
+        'schedule': timedelta(seconds=2)
+    },
+    'change_quiz_question': {
+        'task': 'api.quizzes.tasks.change_quiz_question',
         'schedule': timedelta(seconds=2)
     },
 }

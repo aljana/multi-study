@@ -18,22 +18,33 @@ def api(request, format=None):
                            format=format)
         },
         'quizzes': {
-            'list' : reverse('api.quizzes:quiz-list', request=request, format=format),
-            'login' : reverse('api.quizzes:quiz-login', request=request, format=format, args=(1,)),
-            'get_question': reverse('api.quizzes:question-current', request=request, format=format, args=(1,)),
-            'next_question': reverse('api.quizzes:question-next', request=request, format=format, args=(1,)),
-            'submit_answer': reverse('api.quizzes:question-answer', request=request, format=format, args=(1,1)),
+            'url': reverse('api.quizzes:quiz-list', request=request,
+                           format=format)
+
+
+            # 'list': reverse('api.quizzes:quiz-list', request=request,
+            #                 format=format),
+            # 'login': reverse('api.quizzes:quiz-login', request=request,
+            #                  format=format, args=(1,)),
+            # 'get_question': reverse('api.quizzes:question-current',
+            #                         request=request, format=format, args=(1,)),
+            # 'next_question': reverse('api.quizzes:question-next',
+            #                          request=request, format=format,
+            #                          args=(1,)),
+            # 'submit_answer': reverse('api.quizzes:question-answer',
+            #                          request=request, format=format,
+            #                          args=(1, 1)),
         }
     })
 
 
 @api_view(('GET',))
-def sitemap(request, format=None):
+def sitemap(request):
+    url = settings.SETTINGS['HOSTS']['DEVELOPMENT']['URL']
     return Response(
         {
-            'api': settings.SETTINGS['HOSTS']['DEVELOPMENT']['URL'] + '/api/',
-            'cms': settings.SETTINGS['HOSTS']['DEVELOPMENT']['URL'] + '/cms/',
-            'frontend': settings.SETTINGS['HOSTS']['DEVELOPMENT']['URL'] +
-                        '/www/frontend/'
+            'api': url + '/api/',
+            'cms': url + '/cms/',
+            'frontend': url + '/www/frontend/'
         }
     )
