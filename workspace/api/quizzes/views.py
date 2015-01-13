@@ -16,6 +16,7 @@ from django.shortcuts import get_object_or_404
 
 from .serializers import *
 
+import redis
 
 class QuizViewSet(viewsets.GenericViewSet, ListModelMixin, RetrieveModelMixin):
     queryset = QuizInstance.objects.exclude(state=QuizInstance.STATES.CLOSED)
@@ -57,12 +58,24 @@ class QuizViewSet(viewsets.GenericViewSet, ListModelMixin, RetrieveModelMixin):
                     text=serializer.validated_data['text']
                 )
                 answer.ref_answer = ref_answer
+                answer.score = ref_answer.score
             except Answer.DoesNotExist:
                 answer.ref_answer = None
-
-            # TODO: Calculate score
+                answer.score = 0
 
             answer.save()
+
+            message = {
+                'quiz' : instance.id,
+                'question': instance.question.id,
+                'user': answer.user.get_full_name(),
+                'model': 'Answer',
+                'action': 'new-answer',
+            }
+
+            r = redis.StrictRedis(host='localhost', port=6379, db=4)
+
+            r.publish('quiz:0', json.dumps(message))
 
             return Response(status=status.HTTP_201_CREATED)
         else:
