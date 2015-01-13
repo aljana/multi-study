@@ -1,16 +1,16 @@
 from django.contrib import admin
-from suit.admin import SortableTabularInline
+from suit.admin import *
 
 from .models import *
 
 
-class AnswerInline(SortableTabularInline):
+class AnswerInline(SortableStackedInline):
     model = Answer
     sortable = 'order'
     extra = 0
 
 
-class QuestionInline(SortableTabularInline):
+class QuestionInline(SortableStackedInline):
     model = Question
     list_display = ('title', 'quiz')
     sortable = 'order'
@@ -21,7 +21,7 @@ class QuestionInline(SortableTabularInline):
 class QuizAdmin(admin.ModelAdmin):
     list_display = ('title', 'owner')
     list_filter = ('owner',)
-    inlines = [QuestionInline, AnswerInline]
+    inlines = [QuestionInline]
 
 
 @admin.register(QuizInstance)
