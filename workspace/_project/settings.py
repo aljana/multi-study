@@ -192,6 +192,7 @@ INSTALLED_APPS = (
     'corsheaders',
     'sorl.thumbnail',
     'social.apps.django_app.default',
+    'nested_inline',
     'api',
     'api.users',
     'api.quizzes'

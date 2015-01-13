@@ -40,10 +40,3 @@
     question: 2
     text: Zemlja
     score: 1
-
-- model: quizzes.quizsession
-  pk: 1
-  fields:
-    quiz: 1
-    created: 2014-01-18 19:09:39.330964+00:00
-    current_question: 1
