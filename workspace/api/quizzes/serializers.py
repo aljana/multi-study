@@ -11,14 +11,15 @@ class SubmittedAnswerSerializer(serializers.ModelSerializer):
 class AnswerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Answer
+        fields = ('text', 'image')
 
 
 class QuestionSerializer(serializers.ModelSerializer):
-    # answers = AnswerSerializer(many=True)
+    answers = AnswerSerializer(many=True)
 
     class Meta:
         model = Question
-        fields = ('title', 'description', 'type', 'time_limit')
+        fields = ('title', 'description', 'type', 'time_limit', 'answers')
 
 
 class QuizSerializer(serializers.HyperlinkedModelSerializer):

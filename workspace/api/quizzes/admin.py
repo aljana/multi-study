@@ -9,6 +9,11 @@ class AnswerInline(SortableStackedInline):
     sortable = 'order'
     extra = 0
 
+@admin.register(SubmittedAnswer)
+class SubmittedAnswer(admin.ModelAdmin):
+    list_display = ('text', 'question')
+    sortable = 'order'
+    extra = 0
 
 class QuestionInline(SortableStackedInline):
     model = Question
@@ -21,7 +26,7 @@ class QuestionInline(SortableStackedInline):
 class QuizAdmin(admin.ModelAdmin):
     list_display = ('title', 'owner')
     list_filter = ('owner',)
-    inlines = [QuestionInline]
+    inlines = [QuestionInline, AnswerInline]
 
 
 @admin.register(QuizInstance)

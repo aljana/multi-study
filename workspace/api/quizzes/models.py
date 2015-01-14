@@ -89,9 +89,11 @@ class Question(models.Model):
 
     class QuestionType:
         OPEN = "open"
+        CLOSED = "closed"
 
     TYPE_CHOICES = (
         (QuestionType.OPEN, "Open"),
+        (QuestionType.CLOSED, "Closed")
     )
 
     schedule = models.ForeignKey(QuizSchedule)
