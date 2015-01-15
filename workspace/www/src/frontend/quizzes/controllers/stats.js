@@ -1,8 +1,10 @@
 class StatsController {
-  constructor() {
+  constructor(quiz, stats) {
+    this.quiz = quiz;
+    this.stats = stats;
   }
 }
 
-StatsController.$inject = [];
+StatsController.$inject = ['quiz', 'stats'];
 
 export default StatsController;

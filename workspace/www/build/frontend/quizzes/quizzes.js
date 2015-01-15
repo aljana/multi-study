@@ -45,15 +45,18 @@ System.register(["./controllers/index", "./controllers/quiz", "./controllers/sta
           templateUrl: '/www/frontend/quizzes/templates/stats.html',
           controller: StatsController,
           controllerAs: 'StatsController',
-          resolve: {stats: ['$state', '$stateParams', 'QuizService', (function($state, $stateParams, quizService) {
+          resolve: {
+            quiz: ['$state', '$stateParams', 'QuizService', (function($state, $stateParams, quizService) {
               return quizService.get({quizId: $stateParams.quizId}, function(quiz) {
                 if (quiz.state !== 'closed') {
                   $state.go('quizzes');
-                } else if (quiz.state === 'open') {
-                  quizService.participate({quizId: $stateParams.quizId});
                 }
               }).$promise;
-            })]},
+            })],
+            stats: ['$state', '$stateParams', 'QuizService', (function($state, $stateParams, quizService) {
+              return quizService.stats({quizId: $stateParams.quizId}).$promise;
+            })]
+          },
           data: {rule: function(user) {
               if (!user.credentials) {
                 return 'home';

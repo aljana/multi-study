@@ -15,7 +15,7 @@
       <h3>{{ QuizController.quiz.question.title }}</h3>
       <hr>
       <div class="question">
-        <img ng-if="QuizController.quiz.question.image" style="float: left; display: block; padding: 0 10px 3px 0;" ng-src="{{ QuizController.quiz.question.image }}" height="150">
+        <img ng-show="QuizController.quiz.question.image" style="float: left; display: block; padding: 0 10px 3px 0;" ng-src="{{ QuizController.quiz.question.image }}" height="150">
         {{ QuizController.quiz.question.description }}
       </div>
     </div>

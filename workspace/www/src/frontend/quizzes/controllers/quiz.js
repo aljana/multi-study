@@ -1,5 +1,5 @@
 class QuizController {
-  constructor($scope, $state, quiz, userService, quizService, socketService) {
+  constructor($scope, $timeout, $state, quiz, userService, quizService, socketService) {
     this.$scope = $scope;
     this.quiz = quiz;
     this.userService = userService;
@@ -36,7 +36,12 @@ class QuizController {
     }, 1000);
 
     socketService.on('chat', (message) => {
-      if (message.action === 'chat-message') {
+      if (message.action === 'chat-join') {
+        if (this.messages.length === 0) {
+          Array.prototype.push.apply(this.messages, message.messages);
+        }
+      }
+      else if (message.action === 'chat-message') {
         this.messages.push(message);
       }
     });
@@ -48,9 +53,9 @@ class QuizController {
         this.quiz.answered = false;
         this.quiz.question = message.question;
         this.countdown = Math.round(((new Date(message.timeUpdated) - new Date()) / 1000) + message.question.timeLimit);
-        setTimeout(function () {
+        $timeout(function () {
           $scope.$apply();
-        }, 0);
+        }, 0, false);
       } else if (message.action === 'close-quiz') {
         $state.go('quiz-stats', {quizId: this.quiz.pk}, {
           reload: true,
@@ -93,6 +98,6 @@ class QuizController {
   }
 }
 
-QuizController.$inject = ['$scope', '$state', 'quiz', 'UserService', 'QuizService', 'SocketService'];
+QuizController.$inject = ['$scope', '$timeout', '$state', 'quiz', 'UserService', 'QuizService', 'SocketService'];
 
 export default QuizController;

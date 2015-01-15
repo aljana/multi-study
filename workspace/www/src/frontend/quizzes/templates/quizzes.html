@@ -13,13 +13,16 @@
     </tr>
     </thead>
     <tbody>
-    <tr ng-class="{success: quiz.state === 'open', info: quiz.state === 'active'}" ng-repeat="quiz in IndexController.quizPagination.results | orderBy:'start'">
+    <tr ng-class="{success: quiz.state === 'open', info: quiz.state === 'active', active: quiz.state === 'scheduled'}" ng-repeat="quiz in IndexController.quizPagination.results | orderBy:'start'">
       <td>{{ quiz.pk }}</td>
       <td>{{ quiz.title }}</td>
       <td>{{ quiz.state }}</td>
       <td>{{ quiz.start | date:'HH:mm:ss' }}</td>
       <td>{{ quiz.totalParticipants }}</td>
-      <td><a ng-if="quiz.state === 'open'" ui-sref="quiz({ quizId: quiz.pk })"><span class="glyphicon glyphicon-share-alt"></span></a></td>
+      <td>
+        <a ng-if="quiz.state === 'open'" ui-sref="quiz({ quizId: quiz.pk })"><span class="glyphicon glyphicon-share-alt"></span></a>
+        <a ng-if="quiz.state === 'closed'" ui-sref="quiz-stats({ quizId: quiz.pk })"><span class="glyphicon glyphicon-info-sign"></span></a>
+      </td>
     </tr>
     </tbody>
   </table>

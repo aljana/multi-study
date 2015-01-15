@@ -46,14 +46,15 @@ angular.module('app.quizzes', [])
         controller: StatsController,
         controllerAs: 'StatsController',
         resolve: {
-          stats: ['$state', '$stateParams', 'QuizService', ($state, $stateParams, quizService) => {
+          quiz: ['$state', '$stateParams', 'QuizService', ($state, $stateParams, quizService) => {
             return quizService.get({quizId: $stateParams.quizId}, function (quiz) {
               if (quiz.state !== 'closed') {
                 $state.go('quizzes');
-              } else if (quiz.state === 'open') {
-                quizService.participate({quizId: $stateParams.quizId});
               }
             }).$promise;
+          }],
+          stats: ['$state', '$stateParams', 'QuizService', ($state, $stateParams, quizService) => {
+            return quizService.stats({quizId: $stateParams.quizId}).$promise;
           }]
         },
         data: {

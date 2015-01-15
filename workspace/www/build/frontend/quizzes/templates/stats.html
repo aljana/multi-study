@@ -1,9 +1,18 @@
-<div class="row">
-  <div class="col-xs-8 col-sm-10 col-md-10">
-    <h1 class="page-header">Stats for {{ QuizController.quiz.title }}</h1>
+<h1 class="page-header">Stats for {{ StatsController.quiz.title }}</h1>
 
-  </div>
-  <div class="col-xs-4 col-sm-2 col-md-2 participants">
-    <h4>Participants</h4>
-  </div>
+<div class="table-responsive">
+  <table class="table">
+    <thead>
+    <tr>
+      <th>User</th>
+      <th>Score</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr ng-repeat="stat in StatsController.stats | orderBy:'-totalScore'">
+      <td>{{ stat.user.email }}</td>
+      <td>{{ stat.totalScore }}</td>
+    </tr>
+    </tbody>
+  </table>
 </div>

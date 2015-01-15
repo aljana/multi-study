@@ -7,7 +7,7 @@ import datetime
 import redis
 import json
 
-from .models import QuizSchedule, QuizInstance, Question
+from .models import QuizSchedule, QuizInstance, Question, Answer
 
 logger = get_task_logger(__name__)
 
@@ -128,6 +128,14 @@ def change_quiz_question():
             instance.question = next_question
             instance.save()
 
+            answer_objects = Answer.objects.filter(
+                question=instance.question
+            )
+
+            answers = []
+            for answer in answer_objects:
+                answers.append({'text': answer.text})
+
             message = {
                 'pk': instance.pk,
                 'action': 'change-question',
@@ -135,6 +143,9 @@ def change_quiz_question():
                 'question': {
                     'pk': instance.question.pk,
                     'title': instance.question.title,
+                    'type': instance.question.type,
+                    'answers': answers,
+                    'image': instance.question.image.url,
                     'description': instance.question.description,
                     'timeLimit': instance.question.time_limit
                 }

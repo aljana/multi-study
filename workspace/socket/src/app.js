@@ -19,15 +19,31 @@ module.exports = (settings) => {
     settings.workspace.databases.redis4.host
   );
 
-  client.select(settings.workspace.databases.redis4.db, function (err, res) {
+  var rclient = redis.createClient(
+    settings.workspace.databases.redis4.port,
+    settings.workspace.databases.redis4.host
+  );
+
+  var deferrers = [q.defer(), q.defer()];
+  var promises = [deferrers[0].promise, deferrers[1].promise];
+
+  rclient.select(settings.workspace.databases.redis4.db, function (err, res) {
     if (err) {
-      deferred.reject(err);
+      deferrers[0].reject(err);
     } else {
-      deferred.resolve(res);
+      deferrers[0].resolve(res);
     }
   });
 
-  deferred.promise.then(() => {
+  client.select(settings.workspace.databases.redis4.db, function (err, res) {
+    if (err) {
+      deferrers[1].reject(err);
+    } else {
+      deferrers[1].resolve(res);
+    }
+  });
+
+  q.all(promises).then(() => {
     client.psubscribe('quiz:*');
 
     var emitter = client.on('pmessage', (pattern, channel, message) => {
@@ -48,14 +64,34 @@ module.exports = (settings) => {
 
       socket.on('chat-join', function (data) {
         socket.join('quiz:' + data.quizPk);
-        io.sockets.in('quiz:' + data.quizPk).emit('chat', {
-          action: 'chat-join',
-          email: data.email
+
+        rclient.get('quiz:chat:' + data.quizPk, (err, messages) => {
+          io.sockets.in('quiz:' + data.quizPk).emit('chat', {
+            action: 'chat-join',
+            email: data.email,
+            messages: messages ? JSON.parse(messages) : []
+          });
+          logger.debug(data.email + ' joined room ' + 'quiz:' + data.quizPk);
+
         });
-        logger.debug(data.email + ' joined room ' + 'quiz:' + data.quizPk);
       });
 
       socket.on('chat-message', function (data) {
+        rclient.get('quiz:chat:' + data.pk, (err, messages) => {
+          if (!messages) {
+            messages = [];
+          } else {
+            messages = JSON.parse(messages);
+          }
+
+          messages.push({
+            email: data.email,
+            message: data.message
+          });
+
+          rclient.set('quiz:chat:' + data.pk, JSON.stringify(messages));
+        });
+
         io.sockets.in('quiz:' + data.pk).emit('chat', {
           action: 'chat-message',
           email: data.email,

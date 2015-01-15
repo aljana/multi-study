@@ -5,10 +5,13 @@ System.register([], function($__export) {
     setters: [],
     execute: function() {
       StatsController = (function() {
-        var StatsController = function StatsController() {};
+        var StatsController = function StatsController(quiz, stats) {
+          this.quiz = quiz;
+          this.stats = stats;
+        };
         return ($traceurRuntime.createClass)(StatsController, {}, {});
       }());
-      StatsController.$inject = [];
+      StatsController.$inject = ['quiz', 'stats'];
       $__export('default', StatsController);
     }
   };

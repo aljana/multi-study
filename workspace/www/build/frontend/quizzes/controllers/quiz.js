@@ -5,7 +5,7 @@ System.register([], function($__export) {
     setters: [],
     execute: function() {
       QuizController = (function() {
-        var QuizController = function QuizController($scope, $state, quiz, userService, quizService, socketService) {
+        var QuizController = function QuizController($scope, $timeout, $state, quiz, userService, quizService, socketService) {
           var $__0 = this;
           this.$scope = $scope;
           this.quiz = quiz;
@@ -38,7 +38,11 @@ System.register([], function($__export) {
             $scope.$apply();
           }), 1000);
           socketService.on('chat', (function(message) {
-            if (message.action === 'chat-message') {
+            if (message.action === 'chat-join') {
+              if ($__0.messages.length === 0) {
+                Array.prototype.push.apply($__0.messages, message.messages);
+              }
+            } else if (message.action === 'chat-message') {
               $__0.messages.push(message);
             }
           }));
@@ -48,9 +52,9 @@ System.register([], function($__export) {
               $__0.quiz.answered = false;
               $__0.quiz.question = message.question;
               $__0.countdown = Math.round(((new Date(message.timeUpdated) - new Date()) / 1000) + message.question.timeLimit);
-              setTimeout(function() {
+              $timeout(function() {
                 $scope.$apply();
-              }, 0);
+              }, 0, false);
             } else if (message.action === 'close-quiz') {
               $state.go('quiz-stats', {quizId: $__0.quiz.pk}, {
                 reload: true,
@@ -87,7 +91,7 @@ System.register([], function($__export) {
           }
         }, {});
       }());
-      QuizController.$inject = ['$scope', '$state', 'quiz', 'UserService', 'QuizService', 'SocketService'];
+      QuizController.$inject = ['$scope', '$timeout', '$state', 'quiz', 'UserService', 'QuizService', 'SocketService'];
       $__export('default', QuizController);
     }
   };

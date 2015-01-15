@@ -1,5 +1,11 @@
 from rest_framework import serializers
 from .models import *
+from ..users.serializers import UserSerializer
+
+
+class StatSerializer(serializers.Serializer):
+    total_score = serializers.IntegerField()
+    user = UserSerializer()
 
 
 class SubmittedAnswerSerializer(serializers.ModelSerializer):
@@ -35,6 +41,10 @@ class QuizSerializer(serializers.HyperlinkedModelSerializer):
         view_name='api.quizzes:quiz-submit-answer',
     )
 
+    stats = serializers.HyperlinkedIdentityField(
+        view_name='api.quizzes:quiz-stats',
+    )
+
     total_participants = serializers.SerializerMethodField()
     start = serializers.SerializerMethodField()
     title = serializers.SerializerMethodField()
@@ -43,7 +53,7 @@ class QuizSerializer(serializers.HyperlinkedModelSerializer):
         model = QuizInstance
         fields = (
             'pk', 'title', 'state', 'total_participants', 'start', 'details',
-            'participate', 'time_updated', 'submit_answer'
+            'participate', 'time_updated', 'submit_answer', 'stats',
         )
 
     @staticmethod
@@ -68,7 +78,7 @@ class QuizDetailSerializer(QuizSerializer):
         model = QuizInstance
         fields = (
             'pk', 'title', 'state', 'start', 'total_participants', 'details',
-            'question',
+            'question', 'stats',
             'participate', 'time_updated', 'answered', 'submit_answer'
         )
 

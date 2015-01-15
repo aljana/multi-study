@@ -14,6 +14,11 @@ class QuizService {
       submitAnswer: {
         method: 'POST',
         url: 'quizzes/:quizId/submit_answer'
+      },
+      stats: {
+        method: 'GET',
+        url: 'quizzes/:quizId/stats',
+        isArray: true
       }
     }));
   }

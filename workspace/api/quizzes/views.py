@@ -6,6 +6,8 @@ from rest_framework.mixins import RetrieveModelMixin, \
     ListModelMixin
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from django.db.models import Sum
+from ..users.models import User
 
 try:
     from djangorestframework_camel_case.render import CamelCaseJSONRenderer
@@ -18,9 +20,9 @@ from .serializers import *
 from .permissions import *
 import redis
 
+
 class QuizViewSet(viewsets.GenericViewSet, ListModelMixin, RetrieveModelMixin):
-    queryset = QuizInstance.objects.exclude(
-        state=QuizInstance.STATES.CLOSED).order_by('schedule__start')
+    queryset = QuizInstance.objects.order_by('schedule__start')
     serializer_class = QuizSerializer
     paginate_by = 100
 
@@ -37,6 +39,23 @@ class QuizViewSet(viewsets.GenericViewSet, ListModelMixin, RetrieveModelMixin):
         instance = QuizInstance.objects.get(pk=pk)
         instance.participants.add(request.user)
         return Response(status=status.HTTP_201_CREATED)
+
+    @detail_route(methods=['get'],
+                  permission_classes=[IsAuthenticated],
+                  serializer_class=serializers.BaseSerializer)
+    def stats(self, request, pk=None):
+        instance = QuizInstance.objects.get(pk=pk)
+        answers = SubmittedAnswer.objects.filter(
+            quiz=instance
+        ).values('user', 'quiz').annotate(total_score=Sum('score')).order_by('total_score')
+
+        for answer in answers:
+            answer['user'] = User.objects.get(pk=answer['user'])
+
+        serializer = StatSerializer(answers, many=True, context={'request': request})
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 
     # TODO: Adjust permission class to handle only users who participate
     @detail_route(methods=['post'],
@@ -78,7 +97,7 @@ class QuizViewSet(viewsets.GenericViewSet, ListModelMixin, RetrieveModelMixin):
             answer.save()
 
             message = {
-                'quiz' : instance.id,
+                'quiz': instance.id,
                 'question': instance.question.id,
                 'user': answer.user.get_full_name(),
                 'model': 'Answer',

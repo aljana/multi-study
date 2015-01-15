@@ -22,12 +22,12 @@ System.register([], function($__export) {
                 for (i = 0; i < $__0.quizPagination.results.length; i++) {
                   if ($__0.quizPagination.results[i].pk === message.pk) {
                     $__0.quizPagination.results[i].state = message.state;
-                    if (message.state === 'closed' || message.state === 'deleted') {
+                    if (message.state === 'deleted') {
                       break;
                     }
                   }
                 }
-                if (message.state === 'closed' || message.state === 'deleted') {
+                if (message.state === 'deleted') {
                   $__0.quizPagination.results.splice(i, 1);
                 }
               }

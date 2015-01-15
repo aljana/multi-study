@@ -18,12 +18,12 @@ class IndexController {
           for (i = 0; i < this.quizPagination.results.length; i++) {
             if (this.quizPagination.results[i].pk === message.pk) {
               this.quizPagination.results[i].state = message.state;
-              if (message.state === 'closed' || message.state === 'deleted') {
+              if (message.state === 'deleted') {
                 break;
               }
             }
           }
-          if (message.state === 'closed' || message.state === 'deleted') {
+          if (message.state === 'deleted') {
             this.quizPagination.results.splice(i, 1);
           }
         }
