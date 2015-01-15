@@ -16,3 +16,4 @@ gulp.task('watch', function () {
 });
 
 gulp.task('develop', ['serve', 'watch']);
+gulp.task('runserver', ['serve', 'watch']);

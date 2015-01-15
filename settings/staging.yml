@@ -28,7 +28,7 @@ hosts:
     bower: yes
     gulp: build-staging
 
-  ws:
+  socket:
     domain: ws.multi-study.local
     url: http://ws.multi-study.local
     npm: yes

@@ -1,44 +1,76 @@
-System.register("frontend/common/services/user", [], function($__export) {
+System.register([], function($__export) {
   "use strict";
-  var __moduleName = "frontend/common/services/user";
-  function require(path) {
-    return $traceurRuntime.require("frontend/common/services/user", path);
-  }
   var UserService;
   return {
     setters: [],
     execute: function() {
       UserService = (function() {
-        var UserService = function UserService($resource) {
-          this.$resource = $resource('users/:userId', {userId: '@userId'}, {login: {
+        var UserService = function UserService($resource, cacheService) {
+          var $__0 = this;
+          this.user = $resource('users/:userId', {userId: '@userId'}, {
+            login: {
               method: 'POST',
               url: 'users/session-auth/'
-            }});
+            },
+            logout: {
+              method: 'DELETE',
+              url: 'users/session-auth/'
+            },
+            me: {
+              method: 'GET',
+              url: 'users/me/'
+            }
+          });
           this.authenticated = false;
+          this.cache = cacheService.create('user', {});
+          if ((this.credentials = this.cache.get('credentials'))) {
+            this.authenticated = true;
+          }
+          this.user.me().$promise.then((function(data) {
+            $__0.authenticated = true;
+            $__0.credentials = data;
+            $__0.cache.put('credentials', data);
+          }), (function() {
+            $__0.authenticated = false;
+            $__0.credentials = null;
+            $__0.cache.removeAll();
+          }));
         };
         return ($traceurRuntime.createClass)(UserService, {
           login: function(email, password, rememberMe) {
-            var promise = this.$resource.login({
+            var $__0 = this;
+            var promise = this.user.login({
               email: email,
               password: password,
               rememberMe: rememberMe
             }).$promise;
             promise.then((function(data) {
-              console.log(data);
-            })).catch((function() {
-              console.log('Invalid login');
+              $__0.authenticated = true;
+              $__0.credentials = data;
+              $__0.cache.put('credentials', data);
             }));
             return promise;
           },
-          isAuthenticated: function() {
-            return this.authenticated;
+          register: function(email, password, firstName, lastName) {
+            return this.user.save({
+              email: email,
+              password: password,
+              firstName: firstName,
+              lastName: lastName
+            }).$promise;
+          },
+          logout: function() {
+            this.cache.removeAll();
+            this.authenticated = false;
+            this.credentials = null;
+            this.user.logout();
           }
         }, {});
       }());
-      UserService.$inject = ['$resource'];
+      UserService.$inject = ['$resource', 'CacheService'];
       $__export('default', UserService);
     }
   };
 });
-
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiZnJvbnRlbmQvY29tbW9uL3NlcnZpY2VzL3VzZXIuanMiLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiIiwic291cmNlcyI6WyJmcm9udGVuZC9jb21tb24vc2VydmljZXMvdXNlci5qcyJdLCJzb3VyY2VzQ29udGVudCI6WyJjbGFzcyBVc2VyU2VydmljZSB7XG4gIGNvbnN0cnVjdG9yKCRyZXNvdXJjZSkge1xuICAgIHRoaXMuJHJlc291cmNlID0gJHJlc291cmNlKCd1c2Vycy86dXNlcklkJywge1xuICAgICAgdXNlcklkOiAnQHVzZXJJZCdcbiAgICB9LCB7XG4gICAgICBsb2dpbjoge1xuICAgICAgICBtZXRob2Q6ICdQT1NUJyxcbiAgICAgICAgdXJsOiAndXNlcnMvc2Vzc2lvbi1hdXRoLydcbiAgICAgIH1cbiAgICB9KTtcbiAgICB0aGlzLmF1dGhlbnRpY2F0ZWQgPSBmYWxzZTtcbiAgfVxuXG4gIGxvZ2luKGVtYWlsLCBwYXNzd29yZCwgcmVtZW1iZXJNZSkge1xuICAgIHZhciBwcm9taXNlID0gdGhpcy4kcmVzb3VyY2UubG9naW4oe1xuICAgICAgZW1haWw6IGVtYWlsLFxuICAgICAgcGFzc3dvcmQ6IHBhc3N3b3JkLFxuICAgICAgcmVtZW1iZXJNZTogcmVtZW1iZXJNZVxuICAgIH0pLiRwcm9taXNlO1xuXG4gICAgcHJvbWlzZS50aGVuKChkYXRhKSA9PiB7XG4gICAgICBjb25zb2xlLmxvZyhkYXRhKTtcbiAgICB9KS5jYXRjaCgoKSA9PiB7XG4gICAgICBjb25zb2xlLmxvZygnSW52YWxpZCBsb2dpbicpO1xuICAgIH0pO1xuXG4gICAgcmV0dXJuIHByb21pc2U7XG4gIH1cblxuICBpc0F1dGhlbnRpY2F0ZWQoKSB7XG4gICAgcmV0dXJuIHRoaXMuYXV0aGVudGljYXRlZDtcbiAgfVxufVxuXG5Vc2VyU2VydmljZS4kaW5qZWN0ID0gWyckcmVzb3VyY2UnXTtcblxuZXhwb3J0IGRlZmF1bHQgVXNlclNlcnZpY2U7XG4iXSwic291cmNlUm9vdCI6Ii9zb3VyY2UvIn0=
+//# sourceURL=frontend/common/services/user.js
+//# sourceMappingURL=../../../frontend/common/services/user.js.map

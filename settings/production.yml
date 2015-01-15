@@ -29,7 +29,7 @@ hosts:
     url: http://www.multi-study.com
     dir: workspace/www
 
-  ws:
+  socket:
     domain: ws.multi-study.com
     url: http://ws.multi-study.com
     dir: workspace/socket

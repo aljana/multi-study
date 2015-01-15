@@ -23,10 +23,12 @@ module.exports = function (dn, settings) {
   server.use(require('connect-livereload')({port: 35729}));
   server.use('/' + settings.app.name, express.static(settings.paths.build));
   server.use('/' + settings.app.name, express.static(path.resolve('./src')));
+  //server.use('/src/' + settings.app.name, express.static(path.resolve('./src')));
   server.use('/' + settings.app.name, express.static(path.resolve('./')));
 
   var add = function (m) {
     var f = path.resolve(path.join(settings.paths.build, m + '.html'));
+
     server.get('/' + settings.app.name + '/' + m + '/jspm.js', function (req, res) {
       res.sendFile(path.resolve('./jspm.js'));
     });

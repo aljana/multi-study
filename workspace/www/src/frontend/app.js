@@ -1,17 +1,21 @@
 // Import app modules
-import './home/home';
+import './quizzes/quizzes';
 import './auth/auth';
 import './common/directives';
 import './common/services';
 
-
 // Register main module
 angular.module('app', [
   'ngResource',
+  'ngAnimate',
+  'ngCookies',
+  'angular-loading-bar',
+  'angular-data.DSCacheFactory',
+  'toastr',
   'ui.router',
   'app.directives',
   'app.services',
-  'app.home',
+  'app.quizzes',
   'app.auth'
 ])
   .config([
@@ -19,8 +23,9 @@ angular.module('app', [
     '$resourceProvider',
     '$httpProvider',
     '$locationProvider',
-    'app.settings',
-    ($provide, $resourceProvider, $httpProvider, $locationProvider, settings) => {
+    'cfpLoadingBarProvider',
+    'settings',
+    ($provide, $resourceProvider, $httpProvider, $locationProvider, cfpLoadingBarProvider, settings) => {
       $locationProvider.html5Mode(true);
       $locationProvider.hashPrefix('!');
 
@@ -54,15 +59,41 @@ angular.module('app', [
         };
       });
 
+      cfpLoadingBarProvider.includeSpinner = false;
+
       $httpProvider.defaults.useXDomain = true;
       $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
       $httpProvider.defaults.xsrfCookieName = 'csrftoken';
       delete $httpProvider.defaults.headers.common['X-Requested-With'];
     }])
-  .constant('app.settings', {
+  .constant('settings', {
     apiUrl: '/* @echo $workspace.hosts.api.url */',
+    socketUrl: '/* @echo $workspace.hosts.socket.url */',
     publicUrl: '/* @echo $workspace.hosts.public.url */'
-  });
+  })
+  .run(['$rootScope', '$state', 'LoggerService', 'UserService', ($rootScope, $state, loggerService, userService) => {
+    $rootScope.$watch(() => {
+      return userService.authenticated;
+    }, (authenticated) => {
+      if (authenticated && $state.is('login')) {
+         $state.go('quizzes', {}, {notify: true, reload: true, inherit: true});
+      }
+    });
+
+    $rootScope.$on('$stateChangeStart', (event, toState) => {
+      if (!toState.data || !angular.isFunction(toState.data.rule)) {
+        return;
+      }
+      var result = toState.data.rule(userService);
+      if (result) {
+        event.preventDefault();
+        $state.go(result.to || result, result.params || {}, {notify: false});
+      }
+    });
+    $rootScope.$on('$stateChangeError', (event, toState, toParams, fromState, fromParams, error) => {
+      loggerService.log('error', error);
+    });
+  }]);
 
 
 // Bootstrap app

@@ -1,0 +1,1 @@
+{"version":3,"file":"frontend/common/directives/content/content.js","names":[],"mappings":"","sources":["frontend/common/directives/content/content.js"],"sourcesContent":["export default () => {\n  return {\n    restrict: 'AE',\n    scope: {},\n    templateUrl: './content.html'\n  };\n};\n"],"sourceRoot":"/source/"}

@@ -87,6 +87,33 @@ body {
   margin-top: 0;
 }
 
+.main.ng-enter,
+.main.ng-leave {
+  transition: 0.5s, cubic-bezier(0.250, 0.460, 0.450, 0.940);
+}
+
+.main.ng-enter {
+  -ms-opacity: 0;
+  opacity: 0;
+  display: block;
+}
+
+.main.ng-enter.ng-enter-active {
+  -ms-opacity: 1;
+  opacity: 1;
+}
+
+.main.ng-leave {
+  -ms-opacity: 1;
+  opacity: 1;
+  display: none;
+}
+
+.main.ng-leave.ng-leave-active {
+  -ms-opacity: 0;
+  opacity: 0;
+}
+
 /*
  * Placeholder dashboard ideas
  */
@@ -107,4 +134,80 @@ body {
 .placeholder img {
   display: inline-block;
   border-radius: 50%;
+}
+
+.participants {
+  padding: 20px;
+  margin-top: -20px;
+  right: -20px;
+  overflow-x: hidden;
+  overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
+  background-color: #f9f9f9;
+  border-left: 1px solid #eee;
+}
+
+.countdown {
+  position: absolute;
+  top: 0;
+  right: 80px;
+  width: 300px;
+  height: 50px;
+  font-size: 2em;
+  text-align: right;
+}
+
+.quiz {
+  position: fixed;
+  padding-right: 65px;
+}
+
+.answer {
+  position: fixed;
+  bottom: 0;
+  height: 300px;
+  padding: 10px 65px 0 20px;
+}
+
+.answer textarea {
+  width: 100%;
+  height: 90px;
+  border: 1px solid #eee;
+  padding: 10px;
+}
+
+.question {
+  border: 1px solid #eee;
+  overflow-y: scroll;
+  height: 100px;
+  padding: 10px;
+}
+
+//@media (min-height: 300px) {
+//  .question {
+//    height: 200px;
+//  }
+//}
+
+@media (min-height: 550px) {
+  .question {
+    height: 120px;
+  }
+}
+
+@media (min-height: 650px) {
+  .question {
+    height: 160px;
+  }
+}
+
+@media (min-height: 800px) {
+  .question {
+    height: 300px;
+  }
+}
+
+@media (min-height: 900px) {
+  .question {
+    height: 400px;
+  }
 }

@@ -18,7 +18,8 @@ from .serializers import *
 
 
 class QuizViewSet(viewsets.GenericViewSet, ListModelMixin, RetrieveModelMixin):
-    queryset = QuizInstance.objects.exclude(state=QuizInstance.STATES.CLOSED)
+    queryset = QuizInstance.objects.exclude(
+        state=QuizInstance.STATES.CLOSED).order_by('schedule__start')
     serializer_class = QuizSerializer
     paginate_by = 100
 
@@ -42,8 +43,19 @@ class QuizViewSet(viewsets.GenericViewSet, ListModelMixin, RetrieveModelMixin):
                   serializer_class=SubmittedAnswerSerializer)
     def submit_answer(self, request, pk=None):
         serializer = self.serializer_class(data=request.data)
+
         if serializer.is_valid():
             instance = QuizInstance.objects.get(pk=pk)
+
+            answer_exists = SubmittedAnswer.objects.filter(
+                quiz=instance,
+                question=instance.question,
+                user=request.user
+            ).exists()
+
+            if answer_exists:
+                return Response('Answer exists', status=status.HTTP_400_BAD_REQUEST)
+
             answer = SubmittedAnswer()
             answer.text = serializer.validated_data['text']
             answer.question = instance.question
@@ -73,13 +85,13 @@ class QuizViewSet(viewsets.GenericViewSet, ListModelMixin, RetrieveModelMixin):
 # class QuizList(ListCreateAPIView, RetrieveModelMixin):
 # queryset = Quiz.objects.all()
 # serializer_class = QuizSerializer
-#     paginate_by = 100
+# paginate_by = 100
 #
 #
 # class QuizSessionLogin(UpdateAPIView):
-#     serializer_class = QuizLoginSerializer
+# serializer_class = QuizLoginSerializer
 #
-#     def put(self, request, *args, **kwargs):
+# def put(self, request, *args, **kwargs):
 #         quiz_session_id, = args
 #         quiz_session = get_object_or_404(QuizSession, id=quiz_session_id)
 #

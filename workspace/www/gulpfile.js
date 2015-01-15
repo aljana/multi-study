@@ -41,7 +41,7 @@ gulp.task('compile styles', function () {
   scheduler.task('compile styles').lock();
 
   var sourcemaps = require('gulp-sourcemaps');
-  var autoprefix = new (require('less-plugin-autoprefix'))({browsers: ['last 2 versions']});
+  var autoprefix = new (require('less-plugin-autoprefix'))();
   var filter = require('gulp-filter');
   var filters = {
     css1: filter('**/*.css'),
@@ -62,10 +62,7 @@ gulp.task('compile styles', function () {
       .pipe(filters.less)
       .pipe(sourcemaps.init())
       .pipe(require('gulp-less')({paths: ['./'], plugins: [autoprefix]}))
-      .pipe(sourcemaps.write('./', {
-        includeContent: false,
-        sourceRoot: '/www'
-      }))
+      .pipe(sourcemaps.write('./'))
       .pipe(filters.less.restore())
       .pipe(filters.css2)
       .pipe(require('gulp-preprocess')({context: settings.flat}))
@@ -111,10 +108,10 @@ gulp.task('compile javascripts', function () {
   var traceur = require('lazypipe')()
     .pipe(sourcemaps.init)
     .pipe(require('gulp-traceur'), {
-      modules: 'instantiate',
-      moduleName: true
+      modules: 'instantiate'
+      //moduleName: true
     })
-    .pipe(sourcemaps.write);
+    .pipe(sourcemaps.write, './');
 
   return require('event-stream').merge(
     gulp.src('./src/**/*.js', {base: path.resolve('./src')})
@@ -585,10 +582,15 @@ gulp.task('build', gulpsync.sync([
 ], 'sync build'));
 
 gulp.task('develop', gulpsync.sync([
-  'load development settings',
-  'start development server',
+  'build',
   'watch for file changes'
-], 'sync livereload'));
+], 'sync develop'));
+
+//gulp.task('develop', gulpsync.sync([
+//  'load development settings',
+//  'start development server',
+//  'watch for file changes'
+//], 'sync develop'));
 
 gulp.task('runserver', gulpsync.sync([
   'load development settings',

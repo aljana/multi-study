@@ -86,6 +86,12 @@ class SessionLoginView(CreateAPIView, DestroyAPIView):
     """
     serializer_class = SessionLoginSerializer
 
+    def destroy(self, request, *args, **kwargs):
+        logout(request)
+        response = Response(status=status.HTTP_200_OK)
+        response.delete_cookie('remember_me_token')
+        return response
+
     def create(self, request, *args, **kwargs):
         """
         Perform user login operation.

@@ -1,11 +1,10 @@
-import UserController from '../../controllers/user';
-
 export default () => {
   return {
     restrict: 'AE',
     scope: {},
-    controller: UserController,
-    controllerAs: 'UserController',
+    controller: ['$scope', 'UserService', ($scope, userService) => {
+      $scope.userService = userService;
+    }],
     templateUrl: './header.html'
   };
 };

@@ -31,6 +31,8 @@ class QuizSchedule(models.Model):
 
 class QuizInstance(models.Model):
     class STATES:
+        CREATED = 'created'
+        DELETED = 'deleted'
         OPEN = 'open'
         CLOSED = 'closed'
         ACTIVE = 'active'
@@ -48,36 +50,74 @@ class QuizInstance(models.Model):
     participants = models.ManyToManyField(settings.AUTH_USER_MODEL)
     question = models.ForeignKey('Question', null=True)
     time_created = models.DateTimeField(auto_now_add=True, blank=True)
+    time_activated = models.DateTimeField(blank=True, null=True)
+    time_updated = models.DateTimeField(auto_now=True)
     date_created = models.DateField(auto_now_add=True, blank=True)
-
-    @transition(field=state, source=STATES.SCHEDULED, target=STATES.OPEN)
-    def open(self):
-        message = {
-            'id': self.pk,
-            'model': 'QuizInstance',
-            'action': 'change-state',
-            'previous': QuizInstance.STATES.SCHEDULED,
-            'current': QuizInstance.STATES.OPEN
-        }
-        r = redis.StrictRedis(host='localhost', port=6379, db=4)
-        r.publish('quiz:0', json.dumps(message))
-
-    @transition(field=state, source=STATES.OPEN, target=STATES.ACTIVE)
-    def open(self):
-        message = {
-            'id': self.pk,
-            'model': 'QuizInstance',
-            'action': 'change-state',
-            'previous': QuizInstance.STATES.OPEN,
-            'current': QuizInstance.STATES.ACTIVE
-        }
-        r = redis.StrictRedis(host='localhost', port=6379, db=4)
-        r.publish('quiz:0', json.dumps(message))
 
     class Meta:
         verbose_name = _('Instantiated Quiz')
         verbose_name_plural = _('Instantiated Quizzes')
         ordering = ('date_created',)
+
+    @transition(field=state, source=STATES.SCHEDULED, target=STATES.OPEN)
+    def open(self):
+        message = {
+            'pk': self.pk,
+            'model': 'QuizInstance',
+            'action': 'change-state',
+            'state': QuizInstance.STATES.OPEN
+        }
+        r = redis.StrictRedis(
+            host=settings.SETTINGS['DATABASES']['REDIS4']['HOST'],
+            port=settings.SETTINGS['DATABASES']['REDIS4']['PORT'],
+            db=settings.SETTINGS['DATABASES']['REDIS4']['DB'])
+        r.publish('quiz:public', json.dumps(message))
+
+    @transition(field=state, source=STATES.OPEN, target=STATES.ACTIVE)
+    def activate(self):
+        self.time_activated = datetime.datetime.now()
+        message = {
+            'pk': self.pk,
+            'model': 'QuizInstance',
+            'action': 'change-state',
+            'state': QuizInstance.STATES.ACTIVE
+        }
+        r = redis.StrictRedis(
+            host=settings.SETTINGS['DATABASES']['REDIS4']['HOST'],
+            port=settings.SETTINGS['DATABASES']['REDIS4']['PORT'],
+            db=settings.SETTINGS['DATABASES']['REDIS4']['DB'])
+        r.publish('quiz:public', json.dumps(message))
+
+
+    @transition(field=state, source=STATES.ACTIVE, target=STATES.CLOSED)
+    def close(self):
+        message = {
+            'pk': self.pk,
+            'model': 'QuizInstance',
+            'action': 'change-state',
+            'state': QuizInstance.STATES.CLOSED
+        }
+        r = redis.StrictRedis(
+            host=settings.SETTINGS['DATABASES']['REDIS4']['HOST'],
+            port=settings.SETTINGS['DATABASES']['REDIS4']['PORT'],
+            db=settings.SETTINGS['DATABASES']['REDIS4']['DB'])
+        r.publish('quiz:public', json.dumps(message))
+
+    def save(self, *args, **kwargs):
+        new_instance = not self.pk
+        super(QuizInstance, self).save(*args, **kwargs)
+        if new_instance:
+            message = {
+                'pk': self.pk,
+                'model': 'QuizInstance',
+                'action': 'change-state',
+                'state': QuizInstance.STATES.CREATED
+            }
+            r = redis.StrictRedis(
+                host=settings.SETTINGS['DATABASES']['REDIS4']['HOST'],
+                port=settings.SETTINGS['DATABASES']['REDIS4']['PORT'],
+                db=settings.SETTINGS['DATABASES']['REDIS4']['DB'])
+            r.publish('quiz:public', json.dumps(message))
 
     def __str__(self):
         return self.schedule.title
@@ -87,10 +127,10 @@ class Question(models.Model):
     DEFAULT_TIME_LIMIT = 60
 
     class QuestionType:
-        OPEN = "open"
+        OPEN = 'open'
 
     TYPE_CHOICES = (
-        (QuestionType.OPEN, "Open"),
+        (QuestionType.OPEN, 'Open'),
     )
 
     schedule = models.ForeignKey(QuizSchedule)
@@ -128,3 +168,20 @@ class SubmittedAnswer(models.Model):
     date_created = models.DateTimeField(_('Date submitted'), auto_now_add=True,
                                         blank=True)
     ref_answer = models.ForeignKey(Answer, null=True, blank=True)
+
+
+from django.dispatch import receiver
+from django.db.models.signals import post_delete
+@receiver(post_delete, sender=QuizInstance)
+def delete_quiz_instance(sender, instance, **kwargs):
+    message = {
+        'pk': instance.pk,
+        'model': 'QuizInstance',
+        'action': 'change-state',
+        'state': QuizInstance.STATES.DELETED
+    }
+    r = redis.StrictRedis(
+        host=settings.SETTINGS['DATABASES']['REDIS4']['HOST'],
+        port=settings.SETTINGS['DATABASES']['REDIS4']['PORT'],
+        db=settings.SETTINGS['DATABASES']['REDIS4']['DB'])
+    r.publish('quiz:public', json.dumps(message))

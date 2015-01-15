@@ -1,14 +1,10 @@
-System.register("frontend/app", ["./home/home", "./auth/auth", "./common/directives", "./common/services"], function($__export) {
+System.register(["./quizzes/quizzes", "./auth/auth", "./common/directives", "./common/services"], function($__export) {
   "use strict";
-  var __moduleName = "frontend/app";
-  function require(path) {
-    return $traceurRuntime.require("frontend/app", path);
-  }
   return {
     setters: [function(m) {}, function(m) {}, function(m) {}, function(m) {}],
     execute: function() {
       var $__0 = this;
-      angular.module('app', ['ngResource', 'ui.router', 'app.directives', 'app.services', 'app.home', 'app.auth']).config(['$provide', '$resourceProvider', '$httpProvider', '$locationProvider', 'app.settings', (function($provide, $resourceProvider, $httpProvider, $locationProvider, settings) {
+      angular.module('app', ['ngResource', 'ngAnimate', 'ngCookies', 'angular-loading-bar', 'angular-data.DSCacheFactory', 'toastr', 'ui.router', 'app.directives', 'app.services', 'app.quizzes', 'app.auth']).config(['$provide', '$resourceProvider', '$httpProvider', '$locationProvider', 'cfpLoadingBarProvider', 'settings', (function($provide, $resourceProvider, $httpProvider, $locationProvider, cfpLoadingBarProvider, settings) {
         $locationProvider.html5Mode(true);
         $locationProvider.hashPrefix('!');
         $resourceProvider.defaults.stripTrailingSlashes = false;
@@ -41,14 +37,41 @@ System.register("frontend/app", ["./home/home", "./auth/auth", "./common/directi
             return $delegate.apply($__0, args);
           });
         }));
+        cfpLoadingBarProvider.includeSpinner = false;
         $httpProvider.defaults.useXDomain = true;
         $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
         $httpProvider.defaults.xsrfCookieName = 'csrftoken';
         delete $httpProvider.defaults.headers.common['X-Requested-With'];
-      })]).constant('app.settings', {
+      })]).constant('settings', {
         apiUrl: 'http://dev.multi-study.local/api',
+        socketUrl: 'http://ws.multi-study.local',
         publicUrl: 'http://public.multi-study.local'
-      });
+      }).run(['$rootScope', '$state', 'LoggerService', 'UserService', (function($rootScope, $state, loggerService, userService) {
+        $rootScope.$watch((function() {
+          return userService.authenticated;
+        }), (function(authenticated) {
+          if (authenticated && $state.is('login')) {
+            $state.go('quizzes', {}, {
+              notify: true,
+              reload: true,
+              inherit: true
+            });
+          }
+        }));
+        $rootScope.$on('$stateChangeStart', (function(event, toState) {
+          if (!toState.data || !angular.isFunction(toState.data.rule)) {
+            return;
+          }
+          var result = toState.data.rule(userService);
+          if (result) {
+            event.preventDefault();
+            $state.go(result.to || result, result.params || {}, {notify: false});
+          }
+        }));
+        $rootScope.$on('$stateChangeError', (function(event, toState, toParams, fromState, fromParams, error) {
+          loggerService.log('error', error);
+        }));
+      })]);
       angular.element(document).ready((function() {
         if (window.location.hash === '#_=_') {
           window.location.hash = '#!';
@@ -58,5 +81,5 @@ System.register("frontend/app", ["./home/home", "./auth/auth", "./common/directi
     }
   };
 });
-
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiZnJvbnRlbmQvYXBwLmpzIiwibmFtZXMiOltdLCJtYXBwaW5ncyI6IiIsInNvdXJjZXMiOlsiZnJvbnRlbmQvYXBwLmpzIl0sInNvdXJjZXNDb250ZW50IjpbIi8vIEltcG9ydCBhcHAgbW9kdWxlc1xuaW1wb3J0ICcuL2hvbWUvaG9tZSc7XG5pbXBvcnQgJy4vYXV0aC9hdXRoJztcbmltcG9ydCAnLi9jb21tb24vZGlyZWN0aXZlcyc7XG5pbXBvcnQgJy4vY29tbW9uL3NlcnZpY2VzJztcblxuXG4vLyBSZWdpc3RlciBtYWluIG1vZHVsZVxuYW5ndWxhci5tb2R1bGUoJ2FwcCcsIFtcbiAgJ25nUmVzb3VyY2UnLFxuICAndWkucm91dGVyJyxcbiAgJ2FwcC5kaXJlY3RpdmVzJyxcbiAgJ2FwcC5zZXJ2aWNlcycsXG4gICdhcHAuaG9tZScsXG4gICdhcHAuYXV0aCdcbl0pXG4gIC5jb25maWcoW1xuICAgICckcHJvdmlkZScsXG4gICAgJyRyZXNvdXJjZVByb3ZpZGVyJyxcbiAgICAnJGh0dHBQcm92aWRlcicsXG4gICAgJyRsb2NhdGlvblByb3ZpZGVyJyxcbiAgICAnYXBwLnNldHRpbmdzJyxcbiAgICAoJHByb3ZpZGUsICRyZXNvdXJjZVByb3ZpZGVyLCAkaHR0cFByb3ZpZGVyLCAkbG9jYXRpb25Qcm92aWRlciwgc2V0dGluZ3MpID0+IHtcbiAgICAgICRsb2NhdGlvblByb3ZpZGVyLmh0bWw1TW9kZSh0cnVlKTtcbiAgICAgICRsb2NhdGlvblByb3ZpZGVyLmhhc2hQcmVmaXgoJyEnKTtcblxuICAgICAgJHJlc291cmNlUHJvdmlkZXIuZGVmYXVsdHMuc3RyaXBUcmFpbGluZ1NsYXNoZXMgPSBmYWxzZTtcblxuICAgICAgJHByb3ZpZGUuZGVjb3JhdG9yKCckcmVzb3VyY2UnLCAoJGRlbGVnYXRlKSA9PiB7XG4gICAgICAgIHZhciB1cmwgPSBzZXR0aW5ncy5hcGlVcmwsIGFyZ3M7XG5cbiAgICAgICAgaWYgKHVybC5zdWJzdHIoLTEpID09PSAnLycpIHtcbiAgICAgICAgICB1cmwgPSB1cmwuc3Vic3RyKDAsIHVybC5sZW5ndGggLSAxKTtcbiAgICAgICAgfVxuXG4gICAgICAgIHJldHVybiAoLi4uYXJncykgPT4ge1xuICAgICAgICAgIGlmIChhcmdzWzBdLnN1YnN0cigtMSkgPT09ICcvJykge1xuICAgICAgICAgICAgYXJnc1swXSA9IHVybCArICcvJyArIGFyZ3NbMF07XG4gICAgICAgICAgfSBlbHNlIHtcbiAgICAgICAgICAgIGFyZ3NbMF0gPSB1cmwgKyAnLycgKyBhcmdzWzBdICsgJy8nO1xuICAgICAgICAgIH1cbiAgICAgICAgICBpZiAoYXJnc1syXSkge1xuICAgICAgICAgICAgZm9yICh2YXIgbWV0aG9kIGluIGFyZ3NbMl0pIHtcbiAgICAgICAgICAgICAgaWYgKGFyZ3NbMl0uaGFzT3duUHJvcGVydHkobWV0aG9kKSAmJiBhcmdzWzJdW21ldGhvZF0udXJsKSB7XG4gICAgICAgICAgICAgICAgaWYgKGFyZ3NbMl1bbWV0aG9kXS51cmwuc3Vic3RyKC0xKSA9PT0gJy8nKSB7XG4gICAgICAgICAgICAgICAgICBhcmdzWzJdW21ldGhvZF0udXJsID0gdXJsICsgJy8nICsgYXJnc1syXVttZXRob2RdLnVybDtcbiAgICAgICAgICAgICAgICB9IGVsc2Uge1xuICAgICAgICAgICAgICAgICAgYXJnc1syXVttZXRob2RdLnVybCA9IHVybCArICcvJyArIGFyZ3NbMl1bbWV0aG9kXS51cmwgKyAnLyc7XG4gICAgICAgICAgICAgICAgfVxuICAgICAgICAgICAgICB9XG4gICAgICAgICAgICB9XG4gICAgICAgICAgfVxuICAgICAgICAgIHJldHVybiAkZGVsZWdhdGUuYXBwbHkodGhpcywgYXJncyk7XG4gICAgICAgIH07XG4gICAgICB9KTtcblxuICAgICAgJGh0dHBQcm92aWRlci5kZWZhdWx0cy51c2VYRG9tYWluID0gdHJ1ZTtcbiAgICAgICRodHRwUHJvdmlkZXIuZGVmYXVsdHMueHNyZkhlYWRlck5hbWUgPSAnWC1DU1JGVG9rZW4nO1xuICAgICAgJGh0dHBQcm92aWRlci5kZWZhdWx0cy54c3JmQ29va2llTmFtZSA9ICdjc3JmdG9rZW4nO1xuICAgICAgZGVsZXRlICRodHRwUHJvdmlkZXIuZGVmYXVsdHMuaGVhZGVycy5jb21tb25bJ1gtUmVxdWVzdGVkLVdpdGgnXTtcbiAgICB9XSlcbiAgLmNvbnN0YW50KCdhcHAuc2V0dGluZ3MnLCB7XG4gICAgYXBpVXJsOiAnaHR0cDovL2Rldi5tdWx0aS1zdHVkeS5sb2NhbC9hcGknLFxuICAgIHB1YmxpY1VybDogJ2h0dHA6Ly9wdWJsaWMubXVsdGktc3R1ZHkubG9jYWwnXG4gIH0pO1xuXG5cbi8vIEJvb3RzdHJhcCBhcHBcbmFuZ3VsYXIuZWxlbWVudChkb2N1bWVudCkucmVhZHkoKCkgPT4ge1xuICBpZiAod2luZG93LmxvY2F0aW9uLmhhc2ggPT09ICcjXz1fJykge1xuICAgIHdpbmRvdy5sb2NhdGlvbi5oYXNoID0gJyMhJztcbiAgfVxuICBhbmd1bGFyLmJvb3RzdHJhcChkb2N1bWVudCwgWydhcHAnXSk7XG59KTtcbiJdLCJzb3VyY2VSb290IjoiL3NvdXJjZS8ifQ==
+//# sourceURL=frontend/app.js
+//# sourceMappingURL=../frontend/app.js.map

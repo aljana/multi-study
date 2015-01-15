@@ -1,7 +1,11 @@
 from celery import shared_task
 from celery.utils.log import get_task_logger
 from django.utils import timezone
+from django.conf import settings
+from django.core.serializers.json import DjangoJSONEncoder
 import datetime
+import redis
+import json
 
 from .models import QuizSchedule, QuizInstance, Question
 
@@ -50,10 +54,11 @@ def change_quiz_state():
     )
 
     for instance in instances:
-        instance.state = QuizInstance.STATES.OPEN
+        instance.open()
         instance.save()
         logger.info('Quiz instance %s opened' % instance.schedule.title)
 
+    now = datetime.datetime.now()
     instances = QuizInstance.objects.filter(
         date_created=today,
         state=QuizInstance.STATES.OPEN,
@@ -61,8 +66,9 @@ def change_quiz_state():
     )
 
     for instance in instances:
-        instance.state = QuizInstance.STATES.ACTIVE
-        instance.question = Question.objects.filter(schedule=instance.schedule)[0]
+        instance.activate()
+        # instance.question = \
+        #    Question.objects.filter(schedule=instance.schedule)[0]
         instance.save()
         logger.info('Quiz instance %s activated' % instance.schedule.title)
 
@@ -79,21 +85,64 @@ def change_quiz_question():
 
     for instance in instances:
         time_elapsed = 0
-        questions = Question.objects.filter(schedule=instance.schedule).order_by('order')
+        questions = Question.objects.filter(
+            schedule=instance.schedule
+        ).order_by('order')
         total_questions = questions.count()
         current_question = 0
-        next_question = False
+        next_question = None
+
+        logger.info(now)
+        logger.info(instance.time_activated)
 
         for question in questions:
             time_elapsed += question.time_limit
-            if instance.time_created + datetime.timedelta(seconds=time_elapsed) > now:
-                instance.question = question
-                next_question = True
+            logger.info(question)
+            logger.info(instance.time_activated + datetime.timedelta(seconds=time_elapsed))
+            if instance.time_activated + datetime.timedelta(seconds=time_elapsed) > now:
+                next_question = question
                 break
             current_question += 1
 
-        if total_questions == current_question:
-            instance.state = QuizInstance.STATES.CLOSED
-        if next_question or total_questions == current_question:
+        ended = instance.time_activated + datetime.timedelta(seconds=time_elapsed) <= now
+
+        logger.info(str(next_question.pk if next_question else '') + ' : ' + str(instance.question.pk if instance.question else ''))
+
+        if total_questions == current_question and ended:
+            instance.close()
             instance.save()
+
+            message = {
+                'pk': instance.pk,
+                'action': 'close-quiz'
+            }
+
+            r = redis.StrictRedis(
+                host=settings.SETTINGS['DATABASES']['REDIS4']['HOST'],
+                port=settings.SETTINGS['DATABASES']['REDIS4']['PORT'],
+                db=settings.SETTINGS['DATABASES']['REDIS4']['DB'])
+            r.publish('quiz:%d' % instance.pk, json.dumps(message, cls=DjangoJSONEncoder))
+
+            logger.info('Quiz instance %s closed' % instance.schedule.title)
+        elif next_question and (not instance.question or next_question.pk != instance.question.pk):
+            instance.question = next_question
+            instance.save()
+
+            message = {
+                'pk': instance.pk,
+                'action': 'change-question',
+                'timeUpdated': instance.time_updated,
+                'question': {
+                    'pk': instance.question.pk,
+                    'title': instance.question.title,
+                    'description': instance.question.description,
+                    'timeLimit': instance.question.time_limit
+                }
+            }
+            r = redis.StrictRedis(
+                host=settings.SETTINGS['DATABASES']['REDIS4']['HOST'],
+                port=settings.SETTINGS['DATABASES']['REDIS4']['PORT'],
+                db=settings.SETTINGS['DATABASES']['REDIS4']['DB'])
+            r.publish('quiz:%d' % instance.pk, json.dumps(message, cls=DjangoJSONEncoder))
+
             logger.info('Quiz instance %s updated' % instance.schedule.title)

@@ -1,0 +1,53 @@
+<div class="row">
+  <div class="col-xs-12 col-sm-9 col-md-10 quiz">
+    <h1 class="page-header">{{ QuizController.quiz.title }}</h1>
+
+    <div class="countdown">
+      <div ng-if="QuizController.quiz.question">
+        Next question in: {{ QuizController.countdown }}
+      </div>
+      <div ng-if="!QuizController.quiz.question">
+        Quiz starts in: {{ QuizController.countdown }}
+      </div>
+    </div>
+
+    <div ng-if="QuizController.quiz.question">
+      <h3>{{ QuizController.quiz.question.title }}</h3>
+      <hr>
+      <div class="question">
+        {{ QuizController.quiz.question.description }}
+      </div>
+    </div>
+
+    <div ng-if="!QuizController.quiz.question">
+      <h3>Chat</h3>
+      <hr>
+      <div class="question">
+        <div ng-repeat="message in QuizController.messages">
+          {{ message.email }}: {{ message.message }}
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div class="col-xs-12 col-sm-9 col-md-10 answer">
+    <form ng-if="!QuizController.locked && QuizController.quiz.question">
+      <h4>Enter your answer:</h4>
+      <hr>
+      <textarea ng-model="QuizController.textInput"></textarea>
+      <button ng-click="QuizController.submitTextInput()">Submit</button>
+    </form>
+    <form ng-if="!QuizController.quiz.question" fix-bottom="chat">
+      <h4>Chat:</h4>
+      <hr>
+      <textarea id="chat" enter-submit="QuizController.submitTextInput()"
+                ng-model="QuizController.textInput"></textarea>
+      <button ng-click="QuizController.submitTextInput()">Submit</button>
+    </form>
+  </div>
+  <!--
+  <div class="col-xs-3 col-sm-2 col-md-2 participants">
+    <h4>Participants</h4>
+  </div>
+  -->
+</div>

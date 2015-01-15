@@ -35,27 +35,49 @@ class QuizSerializer(serializers.HyperlinkedModelSerializer):
     )
 
     total_participants = serializers.SerializerMethodField()
+    start = serializers.SerializerMethodField()
+    title = serializers.SerializerMethodField()
 
     class Meta:
         model = QuizInstance
         fields = (
-            'pk', 'state', 'total_participants', 'details', 'participate', 'submit_answer'
+            'pk', 'title', 'state', 'total_participants', 'start', 'details',
+            'participate', 'time_updated', 'submit_answer'
         )
+
+    @staticmethod
+    def get_title(obj):
+        return obj.schedule.title
 
     @staticmethod
     def get_total_participants(obj):
         return obj.participants.count()
 
+    @staticmethod
+    def get_start(obj):
+        return obj.schedule.start
+
 
 class QuizDetailSerializer(QuizSerializer):
     question = QuestionSerializer()
 
+    answered = serializers.SerializerMethodField()
+
     class Meta:
         model = QuizInstance
         fields = (
-            'pk', 'state', 'total_participants', 'details', 'question',
-            'participate', 'submit_answer'
+            'pk', 'title', 'state', 'start', 'total_participants', 'details',
+            'question',
+            'participate', 'time_updated', 'answered', 'submit_answer'
         )
+
+    def get_answered(self, obj):
+        return SubmittedAnswer.objects.filter(
+            quiz=obj,
+            question=obj.question,
+            user=self.context['request'].user
+        ).exists()
+
 
 #
 # class QuestionSerializer(serializers.ModelSerializer):
@@ -65,12 +87,12 @@ class QuizDetailSerializer(QuizSerializer):
 #
 #
 # class AnswerSerializer(serializers.Serializer):
-#     answer = serializers.CharField()
+# answer = serializers.CharField()
 #
-#     def validate(self, data):
-#         return data
+# def validate(self, data):
+# return data
 #
 #
 # class QuizLoginSerializer(serializers.Serializer):
-#     def validate(self, data):
+# def validate(self, data):
 #         return data

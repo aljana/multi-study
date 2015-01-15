@@ -1,8 +1,7 @@
 class SocketService {
-  constructor($rootScope) {
+  constructor($rootScope, settings) {
     this.$rootScope = $rootScope;
-
-    this.socket = io.connect('http://10.1.1.3:3001');
+    this.socket = io.connect(settings.socketUrl);
   }
 
   on(event, callback) {
@@ -28,6 +27,6 @@ class SocketService {
   }
 }
 
-SocketService.$inject = ['$rootScope'];
+SocketService.$inject = ['$rootScope', 'settings'];
 
 export default SocketService;

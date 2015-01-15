@@ -21,7 +21,8 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
 
     full_name = serializers.CharField(source='get_full_name', read_only=True)
     avatars = serializers.SerializerMethodField()
-    password = serializers.CharField(style={'input_type': 'password'})
+    password = serializers.CharField(style={'input_type': 'password'},
+                                     write_only=True)
 
     class Meta:
         model = User
@@ -50,7 +51,8 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
 
 class LoginSerializer(serializers.Serializer):
     email = serializers.CharField()
-    password = serializers.CharField()
+    password = serializers.CharField(style={'input_type': 'password'},
+                                     write_only=True)
 
     def validate(self, data):
         email = data.get('email')
