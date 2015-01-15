@@ -53,6 +53,7 @@ class QuizInstance(models.Model):
     time_activated = models.DateTimeField(blank=True, null=True)
     time_updated = models.DateTimeField(auto_now=True)
     date_created = models.DateField(auto_now_add=True, blank=True)
+    image = models.ImageField("Image", upload_to="quiz/", blank=True, null=True)
 
     class Meta:
         verbose_name = _('Instantiated Quiz')
@@ -127,10 +128,12 @@ class Question(models.Model):
     DEFAULT_TIME_LIMIT = 60
 
     class QuestionType:
-        OPEN = 'open'
+        OPEN = "open"
+        CLOSED = "closed"
 
     TYPE_CHOICES = (
-        (QuestionType.OPEN, 'Open'),
+        (QuestionType.OPEN, "Open"),
+        (QuestionType.CLOSED, "Closed")
     )
 
     schedule = models.ForeignKey(QuizSchedule)
@@ -144,6 +147,8 @@ class Question(models.Model):
     date_created = models.DateTimeField(_('Date created'), auto_now_add=True,
                                         blank=True)
 
+    image = models.ImageField("Image", upload_to="quiz/", blank=True, null=True)
+
     def __str__(self):
         return self.title
 
@@ -154,6 +159,7 @@ class Answer(models.Model):
     order = models.PositiveIntegerField()
     text = models.TextField(_('Text'))
     score = models.IntegerField(_('Score'), default=0)
+    image = models.ImageField("Image", upload_to="quiz/", blank=True, null=True)
 
     def matches(self, answer):
         return answer.lower().strip() == self.text.lower().strip()

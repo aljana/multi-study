@@ -6,6 +6,7 @@ class QuizController {
     this.quizService = quizService;
     this.socketService = socketService;
     this.textInput = '';
+    this.radioInput = null;
     this.messages = [];
 
     socketService.emit('chat-join', {
@@ -42,14 +43,19 @@ class QuizController {
 
     socketService.on('quiz:' + this.quiz.pk, (message) => {
       message = JSON.parse(message);
+      //console.log(message);
       if (message.action === 'change-question') {
         this.quiz.answered = false;
         this.quiz.question = message.question;
         this.countdown = Math.round(((new Date(message.timeUpdated) - new Date()) / 1000) + message.question.timeLimit);
+        setTimeout(function () {
+          $scope.$apply();
+        }, 0);
       } else if (message.action === 'close-quiz') {
-        $state.go('quiz-stats', {
-          stateParams: {quizId: this.quiz.pk},
-          reload: true
+        $state.go('quiz-stats', {quizId: this.quiz.pk}, {
+          reload: true,
+          inherit: true,
+          notify: true
         });
       }
     });
@@ -72,6 +78,18 @@ class QuizController {
 
 
     this.textInput = '';
+  }
+
+  submitRadioInput() {
+    if (this.radioInput) {
+      this.quizService.submitAnswer({quizId: this.quiz.pk}, {
+        text: this.radioInput
+      }, () => {
+        this.quiz.answered = true;
+      });
+
+      this.radioInput = null;
+    }
   }
 }
 

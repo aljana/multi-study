@@ -15,6 +15,7 @@
       <h3>{{ QuizController.quiz.question.title }}</h3>
       <hr>
       <div class="question">
+        <img ng-if="QuizController.quiz.question.image" style="float: left; display: block; padding: 0 10px 3px 0;" ng-src="{{ QuizController.quiz.question.image }}" height="150">
         {{ QuizController.quiz.question.description }}
       </div>
     </div>
@@ -31,11 +32,21 @@
 
   </div>
   <div class="col-xs-12 col-sm-9 col-md-10 answer">
-    <form ng-if="!QuizController.locked && QuizController.quiz.question">
-      <h4>Enter your answer:</h4>
-      <hr>
-      <textarea ng-model="QuizController.textInput"></textarea>
-      <button ng-click="QuizController.submitTextInput()">Submit</button>
+    <form ng-if="!QuizController.quiz.answered && QuizController.quiz.question">
+      <div ng-if="QuizController.quiz.question.type === 'open'">
+        <h4>Enter your answer:</h4>
+        <hr>
+        <textarea ng-model="QuizController.textInput"></textarea>
+        <button ng-click="QuizController.submitTextInput()">Submit</button>
+      </div>
+      <div ng-if="QuizController.quiz.question.type === 'closed'">
+        <h4>Choose your answer:</h4>
+        <hr>
+        <div ng-repeat="answer in QuizController.quiz.question.answers">
+          <input type="radio" name="answer" ng-model="QuizController.radioInput" value="{{ answer.text }}"> {{ answer.text }}
+        </div>
+        <button ng-click="QuizController.submitRadioInput()">Submit</button>
+      </div>
     </form>
     <form ng-if="!QuizController.quiz.question" fix-bottom="chat">
       <h4>Chat:</h4>

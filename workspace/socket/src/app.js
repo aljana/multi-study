@@ -30,17 +30,20 @@ module.exports = (settings) => {
   deferred.promise.then(() => {
     client.psubscribe('quiz:*');
 
+    var emitter = client.on('pmessage', (pattern, channel, message) => {
+      if (settings.workspace.environment === 'development') {
+        logger.debug(channel + ' -> ' + message);
+      }
+      io.sockets.emit(channel, message);
+    });
+
     io.on('connection', (socket) => {
-      var emitter = client.on('pmessage', (pattern, channel, message) => {
-        if (settings.workspace.environment === 'development') {
-          logger.debug(channel + ' -> ' + message);
-        }
-        socket.emit(channel, message);
-      });
+      socket.join('quiz:public');
+
 
       socket.on('disconnect', () => {
         socket.disconnect();
-        emitter.removeAllListeners();
+        //emitter.removeAllListeners();
       });
 
       socket.on('chat-join', function (data) {

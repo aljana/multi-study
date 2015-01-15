@@ -13,6 +13,7 @@ System.register([], function($__export) {
           this.quizService = quizService;
           this.socketService = socketService;
           this.textInput = '';
+          this.radioInput = null;
           this.messages = [];
           socketService.emit('chat-join', {
             email: userService.credentials.user.email,
@@ -47,15 +48,20 @@ System.register([], function($__export) {
               $__0.quiz.answered = false;
               $__0.quiz.question = message.question;
               $__0.countdown = Math.round(((new Date(message.timeUpdated) - new Date()) / 1000) + message.question.timeLimit);
+              setTimeout(function() {
+                $scope.$apply();
+              }, 0);
             } else if (message.action === 'close-quiz') {
-              $state.go('quiz-stats', {
-                stateParams: {quizId: $__0.quiz.pk},
-                reload: true
+              $state.go('quiz-stats', {quizId: $__0.quiz.pk}, {
+                reload: true,
+                inherit: true,
+                notify: true
               });
             }
           }));
         };
-        return ($traceurRuntime.createClass)(QuizController, {submitTextInput: function() {
+        return ($traceurRuntime.createClass)(QuizController, {
+          submitTextInput: function() {
             var $__0 = this;
             if (this.quiz.question) {
               this.quizService.submitAnswer({quizId: this.quiz.pk}, {text: this.textInput}, (function() {
@@ -69,7 +75,17 @@ System.register([], function($__export) {
               });
             }
             this.textInput = '';
-          }}, {});
+          },
+          submitRadioInput: function() {
+            var $__0 = this;
+            if (this.radioInput) {
+              this.quizService.submitAnswer({quizId: this.quiz.pk}, {text: this.radioInput}, (function() {
+                $__0.quiz.answered = true;
+              }));
+              this.radioInput = null;
+            }
+          }
+        }, {});
       }());
       QuizController.$inject = ['$scope', '$state', 'quiz', 'UserService', 'QuizService', 'SocketService'];
       $__export('default', QuizController);

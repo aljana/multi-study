@@ -48,7 +48,7 @@ angular.module('app.quizzes', [])
         resolve: {
           stats: ['$state', '$stateParams', 'QuizService', ($state, $stateParams, quizService) => {
             return quizService.get({quizId: $stateParams.quizId}, function (quiz) {
-              if (quiz.state !== 'open' && quiz.state !== 'active') {
+              if (quiz.state !== 'closed') {
                 $state.go('quizzes');
               } else if (quiz.state === 'open') {
                 quizService.participate({quizId: $stateParams.quizId});

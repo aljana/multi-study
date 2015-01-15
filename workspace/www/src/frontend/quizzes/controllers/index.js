@@ -8,6 +8,7 @@ class IndexController {
     socketService.on('quiz:public', (message) => {
       var i;
       message = JSON.parse(message);
+      //console.log(message);
       if (message.action === 'change-state') {
         if (message.state === 'created') {
           quizService.get({ quizId: message.pk }, (data) => {
