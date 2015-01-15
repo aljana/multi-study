@@ -1,9 +1,9 @@
 server {
     listen 80;
-    server_name {{ hosts.development.domain }};
+    server_name {{ hosts.socket.domain }};
     charset utf-8;
 
-    error_log /var/log/nginx/{{ workspace }}-development-error.log crit;
+    error_log /var/log/nginx/{{ workspace }}-socket-error.log crit;
     client_max_body_size 75M;
     gzip_static on;
     gzip_vary on;
@@ -16,15 +16,12 @@ server {
     log_not_found off;
     expires -1;
 
-    location /www/ {
-        proxy_set_header Host $host;
-        proxy_pass http://127.0.0.1:8001/www/;
-        client_max_body_size 100m;
-    }
-
     location / {
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header Host $host;
-        proxy_pass http://127.0.0.1:8000;
-        client_max_body_size 100m;
+        proxy_http_version 1.1;
+        proxy_pass http://127.0.0.1:8002/;
     }
 }
