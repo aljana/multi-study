@@ -95,6 +95,8 @@ def change_quiz_question():
         logger.info(now)
         logger.info(instance.time_activated)
 
+        logger.info(questions)
+
         for question in questions:
             time_elapsed += question.time_limit
             logger.info(question)
@@ -136,6 +138,10 @@ def change_quiz_question():
             for answer in answer_objects:
                 answers.append({'text': answer.text})
 
+            image = None
+            if instance.question.image:
+                image = instance.question.image.url
+
             message = {
                 'pk': instance.pk,
                 'action': 'change-question',
@@ -145,7 +151,7 @@ def change_quiz_question():
                     'title': instance.question.title,
                     'type': instance.question.type,
                     'answers': answers,
-                    'image': instance.question.image.url,
+                    'image': image,
                     'description': instance.question.description,
                     'timeLimit': instance.question.time_limit
                 }
